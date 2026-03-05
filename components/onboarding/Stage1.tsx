@@ -17,9 +17,10 @@ export default function Stage1({ companyName, onComplete }: Props) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [uploadingPic, setUploadingPic] = useState(false)
 
+  const [clientCompanyName, setClientCompanyName] = useState(companyName)
   const [domains, setDomains] = useState<Domain[]>([])
   const [generatingDomains, setGeneratingDomains] = useState(false)
-  const [selectedDomain, setSelectedDomain] = useState<string | null>(null)
+  const [selectedDomains, setSelectedDomains] = useState<string[]>([])
 
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -50,7 +51,7 @@ export default function Stage1({ companyName, onComplete }: Props) {
     const res = await fetch('/api/generate-domains', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ company_name: companyName }),
+      body: JSON.stringify({ company_name: clientCompanyName }),
     })
     const data = await res.json()
     setGeneratingDomains(false)
@@ -61,8 +62,14 @@ export default function Stage1({ companyName, onComplete }: Props) {
     }
   }
 
+  const toggleDomain = (name: string) => {
+    setSelectedDomains(prev =>
+      prev.includes(name) ? prev.filter(d => d !== name) : [...prev, name]
+    )
+  }
+
   const handleContinue = async () => {
-    if (!profilePicUrl || !selectedDomain) return
+    if (!profilePicUrl || selectedDomains.length === 0) return
     setSaving(true)
     const res = await fetch('/api/onboarding/complete-stage', {
       method: 'POST',
@@ -71,7 +78,8 @@ export default function Stage1({ companyName, onComplete }: Props) {
         stage: 1,
         data: {
           profile_picture_url: profilePicUrl,
-          selected_domain: selectedDomain,
+          selected_domain: selectedDomains[0],
+          selected_domains: selectedDomains,
           generated_domains: domains,
         },
       }),
@@ -84,7 +92,7 @@ export default function Stage1({ companyName, onComplete }: Props) {
     }
   }
 
-  const canContinue = !!profilePicUrl && !!selectedDomain
+  const canContinue = !!profilePicUrl && selectedDomains.length > 0
 
   return (
     <div className="space-y-8">
@@ -131,6 +139,21 @@ export default function Stage1({ companyName, onComplete }: Props) {
         />
       </div>
 
+      {/* Company name override */}
+      <div>
+        <p className="text-[11px] font-medium uppercase tracking-wider text-[#6B6B6B] mb-3">Company Name</p>
+        <input
+          type="text"
+          value={clientCompanyName}
+          onChange={e => { setClientCompanyName(e.target.value); setDomains([]); setSelectedDomains([]) }}
+          placeholder="Your company name"
+          className="w-full bg-[#0F0F0F] border border-[#2A2A2A] rounded px-3 py-2 text-[13px] text-white placeholder-[#4A4A4A] focus:outline-none focus:border-[#5E6AD2]"
+        />
+        {clientCompanyName !== companyName && (
+          <p className="text-[11px] text-[#6B6B6B] mt-1">Overriding "{companyName}"</p>
+        )}
+      </div>
+
       {/* Domain generation */}
       <div>
         <div className="flex items-center justify-between mb-3">
@@ -167,9 +190,9 @@ export default function Stage1({ companyName, onComplete }: Props) {
             {domains.map(d => (
               <button
                 key={d.name}
-                onClick={() => setSelectedDomain(d.name === selectedDomain ? null : d.name)}
+                onClick={() => toggleDomain(d.name)}
                 className={`flex items-center justify-between px-3 py-2 rounded text-[13px] border transition-all text-left ${
-                  selectedDomain === d.name
+                  selectedDomains.includes(d.name)
                     ? 'border-[#5E6AD2] bg-[#5E6AD2]/10 text-white'
                     : 'border-[#1E1E1E] bg-[#0F0F0F] text-[#A0A0A0] hover:border-[#2A2A2A] hover:text-white'
                 }`}
@@ -186,9 +209,9 @@ export default function Stage1({ companyName, onComplete }: Props) {
           </div>
         )}
 
-        {selectedDomain && (
+        {selectedDomains.length > 0 && (
           <p className="text-[12px] text-[#5E6AD2] mt-2">
-            Selected: {selectedDomain}
+            Selected: {selectedDomains.join(', ')}
           </p>
         )}
       </div>
