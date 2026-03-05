@@ -85,13 +85,13 @@ export default function ModulesSection() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.06 }}
-            className="relative rounded-xl border border-[#1E1E1E] bg-[#0F0F0F] overflow-hidden"
+            className="relative rounded-xl border border-[#1E1E1E] bg-[#0F0F0F]"
           >
-            <GlowingEffect spread={20} glow={false} disabled={false} proximity={60} borderWidth={1} />
+            <GlowingEffect spread={30} glow={false} disabled={false} proximity={80} borderWidth={1.5} />
 
             {/* Thumbnail */}
             <div
-              className="relative aspect-video bg-[#141414] flex items-center justify-center cursor-pointer group"
+              className="relative aspect-video bg-[#141414] flex items-center justify-center cursor-pointer group overflow-hidden rounded-t-xl"
               onClick={() => toggle(mod.id)}
             >
               {/* Placeholder gradient */}
