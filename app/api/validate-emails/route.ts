@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 
 const MAILTESTER_API_KEY = process.env.MAILTESTER_API_KEY!
 const MAILTESTER_BASE_URL = 'https://happy.mailtester.ninja/ninja'
@@ -118,6 +119,7 @@ function sseEvent(data: object): Uint8Array {
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createClient()
     const formData = await request.formData()
     const file = formData.get('file') as File | null
     const columnOverride = formData.get('column') as string | null
@@ -177,7 +179,16 @@ export async function POST(request: NextRequest) {
         }
 
         const csv = serializeCSV(enrichedHeaders, enrichedRows)
-        controller.enqueue(sseEvent({ type: 'complete', csv }))
+        const validCount = enrichedRows.filter(r => r[r.length - 1] === 'valid').length
+        const runId = crypto.randomUUID()
+        const storagePath = `${runId}.csv`
+
+        await Promise.allSettled([
+          supabase.storage.from('validation-results').upload(storagePath, new Blob([csv], { type: 'text/csv' }), { contentType: 'text/csv' }),
+          supabase.from('email_validation_runs').insert({ id: runId, file_name: file.name, total, valid_count: validCount, storage_path: storagePath }),
+        ])
+
+        controller.enqueue(sseEvent({ type: 'complete', csv, runId }))
         await sendTelegram(`100% complete — ${total} emails validated`)
         controller.close()
       },

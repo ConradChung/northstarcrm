@@ -1,9 +1,19 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
 import { Button } from '@/components/ui/button'
-import { Upload, RotateCcw, CheckCircle2 } from 'lucide-react'
+import { Upload, RotateCcw, CheckCircle2, Download, Clock } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+
+interface ValidationRun {
+  id: string
+  file_name: string
+  total: number
+  valid_count: number
+  storage_path: string
+  created_at: string
+}
 
 type Step = 'upload' | 'ambiguous' | 'processing' | 'done' | 'error'
 
@@ -21,6 +31,35 @@ export default function EmailValidator() {
   const [fileName, setFileName] = useState<string>('')
   const [validCount, setValidCount] = useState(0)
   const [totalCount, setTotalCount] = useState(0)
+  const [runs, setRuns] = useState<ValidationRun[]>([])
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
+  const supabase = createClient()
+
+  const loadRuns = useCallback(async () => {
+    const { data } = await supabase
+      .from('email_validation_runs')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(20)
+    if (data) setRuns(data)
+  }, [supabase])
+
+  useEffect(() => { loadRuns() }, [loadRuns])
+
+  async function handleDownload(run: ValidationRun) {
+    setDownloadingId(run.id)
+    const { data, error } = await supabase.storage
+      .from('validation-results')
+      .createSignedUrl(run.storage_path, 3600)
+    setDownloadingId(null)
+    if (error || !data?.signedUrl) return
+    const a = document.createElement('a')
+    a.href = data.signedUrl
+    a.download = run.file_name.replace('.csv', '') + '_validated.csv'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  }
 
   async function submit(file: File, column?: string) {
     setStep('processing')
@@ -87,6 +126,7 @@ export default function EmailValidator() {
             document.body.removeChild(a)
             URL.revokeObjectURL(url)
             setStep('done')
+            loadRuns()
           }
         }
       }
@@ -282,7 +322,6 @@ export default function EmailValidator() {
                   <span className="text-white text-lg font-semibold tabular-nums">{validPct}%</span>
                 </div>
               </div>
-
               <div className="space-y-3 min-w-[140px]">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-2">
@@ -307,6 +346,42 @@ export default function EmailValidator() {
           </div>
         )
       })()}
+
+      {/* Previous runs */}
+      {runs.length > 0 && (
+        <div className="mt-8 max-w-lg">
+          <p className="text-[13px] font-medium text-white mb-3">Previous Runs</p>
+          <div className="space-y-2">
+            {runs.map(run => {
+              const validPct = run.total > 0 ? Math.round((run.valid_count / run.total) * 100) : 0
+              const date = new Date(run.created_at)
+              return (
+                <div key={run.id} className="flex items-center justify-between gap-4 border border-[#1E1E1E] rounded-xl bg-[#0F0F0F] px-4 py-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] text-white truncate">{run.file_name}</p>
+                    <div className="flex items-center gap-3 mt-0.5">
+                      <span className="text-[11px] text-[#4A4A4A] flex items-center gap-1">
+                        <Clock size={10} />
+                        {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                      <span className="text-[11px] text-[#4A4A4A]">{run.total} emails</span>
+                      <span className="text-[11px] text-[#22c55e]">{validPct}% valid</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleDownload(run)}
+                    disabled={downloadingId === run.id}
+                    className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#2A2A2A] text-[12px] text-[#6B6B6B] hover:border-[#3A3A3A] hover:text-white transition-colors disabled:opacity-40"
+                  >
+                    <Download size={12} />
+                    {downloadingId === run.id ? 'Getting link…' : 'Download'}
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </section>
   )
 }
