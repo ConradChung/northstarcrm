@@ -74,22 +74,25 @@ export async function POST(request: NextRequest) {
   const { stage, data } = await request.json()
 
   if (stage === 1) {
-    await supabase.from('stage1_onboarding').upsert(
+    const { error: e1 } = await supabase.from('stage1_onboarding').upsert(
       { ...data, client_id: user.id, completed: true },
       { onConflict: 'client_id' }
     )
+    if (e1) return NextResponse.json({ error: e1.message }, { status: 500 })
     await supabase.from('profiles').update({ onboarding_stage: 2 }).eq('id', user.id)
   } else if (stage === 2) {
-    await supabase.from('stage2_onboarding').upsert(
+    const { error: e2 } = await supabase.from('stage2_onboarding').upsert(
       { ...data, client_id: user.id, completed: true },
       { onConflict: 'client_id' }
     )
+    if (e2) return NextResponse.json({ error: e2.message }, { status: 500 })
     await supabase.from('profiles').update({ onboarding_stage: 3 }).eq('id', user.id)
   } else if (stage === 3) {
-    await supabase.from('onboarding_forms').upsert(
+    const { error: e3 } = await supabase.from('onboarding_forms').upsert(
       { ...data, client_id: user.id, completed: true, completed_at: new Date().toISOString() },
       { onConflict: 'client_id' }
     )
+    if (e3) return NextResponse.json({ error: e3.message }, { status: 500 })
     await supabase.from('profiles').update({ onboarding_stage: 4 }).eq('id', user.id)
 
     // Fetch profile for company name
