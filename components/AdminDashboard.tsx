@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
 import {
   Users,
   Megaphone,
@@ -11,7 +12,6 @@ import {
   Database,
   Mail,
   LogOut,
-  Rocket,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Sidebar, SidebarBody, useSidebar } from '@/components/ui/sidebar'
@@ -52,9 +52,13 @@ function SidebarLogo() {
   const { open, animate } = useSidebar()
   return (
     <div className="flex items-center gap-3 px-3 py-2 mb-2">
-      <div className="w-7 h-7 rounded-lg bg-[#5E6AD2] flex items-center justify-center shrink-0">
-        <Rocket size={14} className="text-white" />
-      </div>
+      <Image
+        src="/northstar-logo-white.png"
+        alt="NorthStar"
+        width={28}
+        height={28}
+        className="shrink-0"
+      />
       <motion.span
         animate={{
           display: animate ? (open ? 'inline-block' : 'none') : 'inline-block',
