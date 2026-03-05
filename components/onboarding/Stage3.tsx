@@ -2,6 +2,46 @@
 
 import { useState, useRef, useEffect, useCallback, KeyboardEvent } from 'react'
 
+// ── Collapsible group ─────────────────────────────────────────────────────────
+function CollapsibleGroup({
+  label,
+  count,
+  children,
+  defaultOpen = false,
+}: {
+  label: string
+  count: number
+  children: React.ReactNode
+  defaultOpen?: boolean
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <div className="border border-[#1E1E1E] rounded overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-2.5 bg-[#0A0A0A] hover:bg-[#111111] transition-colors text-left"
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-[12px] font-medium text-[#A0A0A0]">{label}</span>
+          {count > 0 && (
+            <span className="text-[10px] px-1.5 py-0.5 bg-[#5E6AD2]/20 text-[#8B95E2] rounded-full font-medium">
+              {count}
+            </span>
+          )}
+        </div>
+        <svg
+          className={`w-3.5 h-3.5 text-[#4A4A4A] transition-transform ${open ? 'rotate-180' : ''}`}
+          fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && <div className="px-4 py-3 bg-[#0A0A0A]">{children}</div>}
+    </div>
+  )
+}
+
 // ── Chip component ────────────────────────────────────────────────────────────
 function Chip({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
   return (
@@ -422,22 +462,24 @@ export default function Stage3({ onComplete }: Props) {
           {/* Industry */}
           <div>
             <SectionLabel>Industry</SectionLabel>
-            <div className="space-y-4">
-              {INDUSTRY_GROUPS.map(g => (
-                <div key={g.group}>
-                  <p className="text-[11px] text-[#4A4A4A] mb-1.5">{g.group}</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {g.chips.map(chip => (
-                      <Chip
-                        key={chip}
-                        label={chip}
-                        selected={form.industries.includes(chip)}
-                        onClick={() => set('industries', toggle(form.industries, chip))}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
+            <div className="space-y-1.5">
+              {INDUSTRY_GROUPS.map((g, i) => {
+                const selectedCount = g.chips.filter(c => form.industries.includes(c)).length
+                return (
+                  <CollapsibleGroup key={g.group} label={g.group} count={selectedCount} defaultOpen={i === 0}>
+                    <div className="flex flex-wrap gap-1.5">
+                      {g.chips.map(chip => (
+                        <Chip
+                          key={chip}
+                          label={chip}
+                          selected={form.industries.includes(chip)}
+                          onClick={() => set('industries', toggle(form.industries, chip))}
+                        />
+                      ))}
+                    </div>
+                  </CollapsibleGroup>
+                )
+              })}
             </div>
           </div>
 
