@@ -2,6 +2,8 @@
 
 import { useState, useRef } from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
+import { Button } from '@/components/ui/button'
+import { Upload, RotateCcw, CheckCircle2 } from 'lucide-react'
 
 type Step = 'upload' | 'ambiguous' | 'processing' | 'done' | 'error'
 
@@ -16,6 +18,7 @@ export default function EmailValidator() {
   const [error, setError] = useState<string>('')
   const [progress, setProgress] = useState<Progress>({ processed: 0, total: 0 })
   const fileRef = useRef<File | null>(null)
+  const [fileName, setFileName] = useState<string>('')
   const [validCount, setValidCount] = useState(0)
   const [totalCount, setTotalCount] = useState(0)
 
@@ -87,8 +90,8 @@ export default function EmailValidator() {
           }
         }
       }
-    } catch (err: any) {
-      setError(err.message ?? 'Network error')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Network error')
       setStep('error')
     }
   }
@@ -99,6 +102,11 @@ export default function EmailValidator() {
     if (!file) return
     fileRef.current = file
     submit(file)
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    setFileName(file?.name ?? '')
   }
 
   function handleColumnSelect(column: string) {
@@ -113,6 +121,7 @@ export default function EmailValidator() {
     setProgress({ processed: 0, total: 0 })
     setValidCount(0)
     setTotalCount(0)
+    setFileName('')
     fileRef.current = null
   }
 
@@ -120,76 +129,82 @@ export default function EmailValidator() {
 
   return (
     <section>
-      <div className="mb-5">
-        <h2 className="text-base font-medium text-white">Email Validator</h2>
-        <p className="text-[#6B6B6B] text-[13px] mt-1">
+      <div className="mb-6">
+        <h2 className="text-lg font-medium text-white mb-1">Email Validator</h2>
+        <p className="text-[13px] text-[#6B6B6B]">
           Upload a CSV to validate each email address and download the enriched file.
         </p>
       </div>
 
-      <div className="max-w-lg">
+      <div className="max-w-lg space-y-3">
         {step === 'upload' && (
-          <form onSubmit={handleUpload} className="space-y-4">
-            <div className="border border-[#1E1E1E] rounded p-4">
-              <label className="block text-[#6B6B6B] text-[11px] uppercase tracking-wider font-medium mb-3">
-                CSV File
-              </label>
+          <form onSubmit={handleUpload} className="space-y-3">
+            <label className="flex flex-col items-center justify-center gap-3 border border-dashed border-[#2A2A2A] rounded-xl bg-[#0F0F0F] px-6 py-10 cursor-pointer hover:border-[#3A3A3A] hover:bg-[#121212] transition-colors group">
+              <div className="w-10 h-10 rounded-full bg-[#1A1A1A] border border-[#2A2A2A] flex items-center justify-center group-hover:border-[#3A3A3A] transition-colors">
+                <Upload size={18} className="text-[#5A5A5A]" />
+              </div>
+              <div className="text-center">
+                <p className="text-[13px] text-white font-medium">
+                  {fileName ? fileName : 'Choose a CSV file'}
+                </p>
+                <p className="text-[12px] text-[#4A4A4A] mt-0.5">
+                  {fileName ? 'Click to change' : 'or drag and drop here'}
+                </p>
+              </div>
               <input
                 type="file"
                 name="csv"
                 accept=".csv"
                 required
-                className="block w-full text-sm text-[#6B6B6B] file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-[#1E1E1E] file:text-white hover:file:bg-[#2A2A2A] file:cursor-pointer cursor-pointer"
+                className="sr-only"
+                onChange={handleFileChange}
               />
-            </div>
-            <button
-              type="submit"
-              className="w-full py-2 px-4 bg-white text-[#0A0A0A] text-sm font-medium rounded hover:bg-[#E0E0E0] transition-colors"
-            >
+            </label>
+            <Button type="submit" className="w-full rounded-xl bg-white text-[#0A0A0A] hover:bg-[#E8E8E8] font-medium text-[13px] h-10">
               Validate Emails
-            </button>
+            </Button>
           </form>
         )}
 
         {step === 'ambiguous' && (
-          <div className="space-y-4">
-            <div className="border border-[#1E1E1E] rounded p-4">
-              <p className="text-white text-sm mb-4">
-                Multiple email columns found. Which one should we validate?
-              </p>
+          <div className="space-y-3">
+            <div className="border border-[#1E1E1E] rounded-xl bg-[#0F0F0F] p-5">
+              <p className="text-[13px] text-white font-medium mb-1">Multiple email columns found</p>
+              <p className="text-[12px] text-[#6B6B6B] mb-4">Which column should we validate?</p>
               <div className="space-y-2">
                 {ambiguousColumns.map(col => (
                   <button
                     key={col}
                     onClick={() => handleColumnSelect(col)}
-                    className="w-full text-left px-4 py-2.5 border border-[#1E1E1E] rounded text-sm text-[#6B6B6B] hover:border-[#3A3A3A] hover:text-white transition-colors"
+                    className="w-full text-left px-4 py-2.5 border border-[#1E1E1E] rounded-lg text-[13px] text-[#6B6B6B] hover:border-[#3A3A3A] hover:text-white hover:bg-[#141414] transition-colors"
                   >
                     {col}
                   </button>
                 ))}
               </div>
             </div>
-            <button onClick={reset} className="text-[#4A4A4A] text-xs hover:text-[#A0A0A0] transition-colors">
-              ← Upload a different file
+            <button onClick={reset} className="flex items-center gap-1.5 text-[12px] text-[#4A4A4A] hover:text-[#A0A0A0] transition-colors">
+              <RotateCcw size={12} />
+              Upload a different file
             </button>
           </div>
         )}
 
         {step === 'processing' && (
-          <div className="border border-[#1E1E1E] rounded p-6 space-y-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-[#6B6B6B]">Validating emails…</span>
-              <span className="text-white tabular-nums">
+          <div className="border border-[#1E1E1E] rounded-xl bg-[#0F0F0F] p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] text-[#6B6B6B]">Validating emails…</span>
+              <span className="text-[13px] text-white tabular-nums font-medium">
                 {progress.total > 0 ? `${progress.processed} / ${progress.total}` : '—'}
               </span>
             </div>
-            <div className="h-1.5 bg-[#1E1E1E] rounded-full overflow-hidden">
+            <div className="h-1 bg-[#1E1E1E] rounded-full overflow-hidden">
               <div
                 className="h-full bg-white rounded-full transition-all duration-300"
                 style={{ width: `${pct}%` }}
               />
             </div>
-            <p className="text-[#4A4A4A] text-xs">
+            <p className="text-[11px] text-[#4A4A4A]">
               {progress.total > 0
                 ? `${pct}% complete — processing sequentially to avoid rate limits`
                 : 'Starting…'}
@@ -198,21 +213,34 @@ export default function EmailValidator() {
         )}
 
         {step === 'done' && (
-          <div className="border border-[#1E1E1E] rounded p-6 text-center space-y-3">
-            <p className="text-white text-sm">Validation complete — CSV downloaded.</p>
-            <button onClick={reset} className="text-[#4A4A4A] text-xs hover:text-[#A0A0A0] transition-colors">
+          <div className="border border-[#1E1E1E] rounded-xl bg-[#0F0F0F] p-6 flex flex-col items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-[#22c55e]/10 flex items-center justify-center">
+              <CheckCircle2 size={20} className="text-[#22c55e]" />
+            </div>
+            <div className="text-center">
+              <p className="text-[13px] text-white font-medium">Validation complete</p>
+              <p className="text-[12px] text-[#6B6B6B] mt-0.5">CSV downloaded to your device</p>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={reset}
+              className="text-[12px] text-[#4A4A4A] hover:text-white hover:bg-[#1A1A1A] rounded-lg mt-1"
+            >
+              <RotateCcw size={12} className="mr-1.5" />
               Validate another file
-            </button>
+            </Button>
           </div>
         )}
 
         {step === 'error' && (
-          <div className="space-y-4">
-            <div className="border border-red-500/20 bg-red-500/5 rounded p-4">
-              <p className="text-red-400 text-sm">{error}</p>
+          <div className="space-y-3">
+            <div className="border border-red-500/20 bg-red-500/5 rounded-xl p-5">
+              <p className="text-[13px] text-red-400">{error}</p>
             </div>
-            <button onClick={reset} className="text-[#4A4A4A] text-xs hover:text-[#A0A0A0] transition-colors">
-              ← Try again
+            <button onClick={reset} className="flex items-center gap-1.5 text-[12px] text-[#4A4A4A] hover:text-[#A0A0A0] transition-colors">
+              <RotateCcw size={12} />
+              Try again
             </button>
           </div>
         )}
@@ -228,18 +256,18 @@ export default function EmailValidator() {
         const COLORS = ['#22c55e', '#ef4444']
 
         return (
-          <div className="mt-8 pt-8 border-t border-[#1E1E1E]">
-            <h3 className="text-sm font-medium text-white mb-5">Results</h3>
+          <div className="mt-6 max-w-lg border border-[#1E1E1E] rounded-xl bg-[#0F0F0F] p-6">
+            <p className="text-[13px] font-medium text-white mb-5">Results</p>
             <div className="flex items-center gap-10">
-              <div className="relative w-36 h-36 flex-shrink-0">
+              <div className="relative w-32 h-32 flex-shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={data}
                       cx="50%"
                       cy="50%"
-                      innerRadius={40}
-                      outerRadius={60}
+                      innerRadius={36}
+                      outerRadius={56}
                       paddingAngle={2}
                       dataKey="value"
                       strokeWidth={0}
@@ -251,28 +279,28 @@ export default function EmailValidator() {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-white text-xl font-semibold tabular-nums">{validPct}%</span>
+                  <span className="text-white text-lg font-semibold tabular-nums">{validPct}%</span>
                 </div>
               </div>
 
               <div className="space-y-3 min-w-[140px]">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-[#22c55e]"></span>
-                    <span className="text-sm text-[#6B6B6B]">Valid</span>
+                    <span className="w-2 h-2 rounded-full bg-[#22c55e]" />
+                    <span className="text-[13px] text-[#6B6B6B]">Valid</span>
                   </div>
-                  <span className="text-sm text-white tabular-nums">{validCount}</span>
+                  <span className="text-[13px] text-white tabular-nums font-medium">{validCount}</span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-[#ef4444]"></span>
-                    <span className="text-sm text-[#6B6B6B]">Not Valid</span>
+                    <span className="w-2 h-2 rounded-full bg-[#ef4444]" />
+                    <span className="text-[13px] text-[#6B6B6B]">Not Valid</span>
                   </div>
-                  <span className="text-sm text-white tabular-nums">{invalid}</span>
+                  <span className="text-[13px] text-white tabular-nums font-medium">{invalid}</span>
                 </div>
                 <div className="border-t border-[#1E1E1E] pt-3 flex items-center justify-between gap-4">
-                  <span className="text-sm text-[#6B6B6B]">Total</span>
-                  <span className="text-sm text-white tabular-nums">{totalCount}</span>
+                  <span className="text-[13px] text-[#6B6B6B]">Total</span>
+                  <span className="text-[13px] text-white tabular-nums font-medium">{totalCount}</span>
                 </div>
               </div>
             </div>
