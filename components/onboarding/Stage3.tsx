@@ -4,15 +4,9 @@ import { useState, useRef, useEffect, useCallback, KeyboardEvent } from 'react'
 
 // ── Collapsible group ─────────────────────────────────────────────────────────
 function CollapsibleGroup({
-  label,
-  count,
-  children,
-  defaultOpen = false,
+  label, count, children, defaultOpen = false,
 }: {
-  label: string
-  count: number
-  children: React.ReactNode
-  defaultOpen?: boolean
+  label: string; count: number; children: React.ReactNode; defaultOpen?: boolean
 }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
@@ -25,15 +19,10 @@ function CollapsibleGroup({
         <div className="flex items-center gap-2">
           <span className="text-[12px] font-medium text-[#A0A0A0]">{label}</span>
           {count > 0 && (
-            <span className="text-[10px] px-1.5 py-0.5 bg-[#5E6AD2]/20 text-[#8B95E2] rounded-full font-medium">
-              {count}
-            </span>
+            <span className="text-[10px] px-1.5 py-0.5 bg-[#5E6AD2]/20 text-[#8B95E2] rounded-full font-medium">{count}</span>
           )}
         </div>
-        <svg
-          className={`w-3.5 h-3.5 text-[#4A4A4A] transition-transform ${open ? 'rotate-180' : ''}`}
-          fill="none" viewBox="0 0 24 24" stroke="currentColor"
-        >
+        <svg className={`w-3.5 h-3.5 text-[#4A4A4A] transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
@@ -42,7 +31,7 @@ function CollapsibleGroup({
   )
 }
 
-// ── Chip component ────────────────────────────────────────────────────────────
+// ── Chip ─────────────────────────────────────────────────────────────────────
 function Chip({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
   return (
     <button
@@ -59,42 +48,167 @@ function Chip({ label, selected, onClick }: { label: string; selected: boolean; 
   )
 }
 
-// ── Tag input ─────────────────────────────────────────────────────────────────
-function TagInput({ tags, onChange, placeholder }: { tags: string[]; onChange: (tags: string[]) => void; placeholder: string }) {
+// ── Tag input with suggestion dropdown ───────────────────────────────────────
+function TagInputWithSuggestions({
+  tags, onChange, placeholder, suggestions,
+}: {
+  tags: string[]; onChange: (tags: string[]) => void; placeholder: string; suggestions: string[]
+}) {
   const [input, setInput] = useState('')
+  const [showDropdown, setShowDropdown] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const filtered = suggestions
+    .filter(s => !tags.includes(s) && (input.length === 0 || s.toLowerCase().includes(input.toLowerCase())))
+    .slice(0, 20)
 
   const addTag = (value: string) => {
     const trimmed = value.trim().replace(/,$/, '').trim()
     if (trimmed && !tags.includes(trimmed)) onChange([...tags, trimmed])
     setInput('')
+    setShowDropdown(false)
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(input) }
     else if (e.key === 'Backspace' && !input && tags.length > 0) onChange(tags.slice(0, -1))
+    else if (e.key === 'Escape') setShowDropdown(false)
   }
 
   return (
-    <div
-      className="min-h-[38px] px-2.5 py-1.5 bg-[#0F0F0F] border border-[#1E1E1E] rounded flex flex-wrap gap-1.5 items-center cursor-text focus-within:border-[#3A3A3A] transition-colors"
-      onClick={() => inputRef.current?.focus()}
-    >
-      {tags.map(tag => (
-        <span key={tag} className="flex items-center gap-1 px-2 py-0.5 bg-[#1E1E1E] text-[#A0A0A0] text-[11px] rounded">
-          {tag}
-          <button type="button" onClick={e => { e.stopPropagation(); onChange(tags.filter(t => t !== tag)) }} className="text-[#4A4A4A] hover:text-[#A0A0A0] leading-none">×</button>
-        </span>
-      ))}
-      <input
-        ref={inputRef}
-        value={input}
-        onChange={e => setInput(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={() => { if (input.trim()) addTag(input) }}
-        placeholder={tags.length === 0 ? placeholder : ''}
-        className="flex-1 min-w-[120px] bg-transparent text-[12px] text-white placeholder-[#3A3A3A] outline-none"
-      />
+    <div className="relative">
+      <div
+        className="min-h-[38px] px-2.5 py-1.5 bg-[#0F0F0F] border border-[#1E1E1E] rounded flex flex-wrap gap-1.5 items-center cursor-text focus-within:border-[#3A3A3A] transition-colors"
+        onClick={() => { inputRef.current?.focus(); setShowDropdown(true) }}
+      >
+        {tags.map(tag => (
+          <span key={tag} className="flex items-center gap-1 px-2 py-0.5 bg-[#1E1E1E] text-[#A0A0A0] text-[11px] rounded">
+            {tag}
+            <button type="button" onClick={e => { e.stopPropagation(); onChange(tags.filter(t => t !== tag)) }} className="text-[#4A4A4A] hover:text-[#A0A0A0] leading-none">×</button>
+          </span>
+        ))}
+        <input
+          ref={inputRef}
+          value={input}
+          onChange={e => { setInput(e.target.value); setShowDropdown(true) }}
+          onKeyDown={handleKeyDown}
+          onFocus={() => setShowDropdown(true)}
+          onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+          placeholder={tags.length === 0 ? placeholder : ''}
+          className="flex-1 min-w-[100px] bg-transparent text-[12px] text-white placeholder-[#3A3A3A] outline-none"
+        />
+      </div>
+      {showDropdown && filtered.length > 0 && (
+        <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-[#111111] border border-[#1E1E1E] rounded shadow-xl max-h-48 overflow-y-auto">
+          {filtered.map(s => (
+            <button
+              key={s}
+              type="button"
+              onMouseDown={e => { e.preventDefault(); addTag(s) }}
+              className="w-full px-3 py-2 text-[12px] text-[#A0A0A0] hover:bg-[#1E1E1E] hover:text-white text-left transition-colors"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Department picker ─────────────────────────────────────────────────────────
+const DEPARTMENT_GROUPS = [
+  { label: 'C-Suite', titles: ['CEO', 'COO', 'CFO', 'CTO', 'CMO', 'CHRO', 'CPO', 'President', 'Managing Director', 'Executive Director'] },
+  { label: 'Sales', titles: ['VP of Sales', 'Sales Director', 'Sales Manager', 'Account Executive', 'Business Development Manager', 'Account Manager', 'Sales Representative', 'Head of Sales', 'Director of Business Development'] },
+  { label: 'Marketing', titles: ['VP of Marketing', 'Marketing Director', 'Marketing Manager', 'Growth Manager', 'Content Manager', 'Digital Marketing Manager', 'Brand Manager', 'Head of Marketing', 'Demand Generation Manager'] },
+  { label: 'Finance', titles: ['CFO', 'Finance Director', 'Controller', 'Finance Manager', 'VP of Finance', 'Accountant', 'Treasurer', 'Head of Finance', 'Chief Accounting Officer'] },
+  { label: 'Engineering & Technical', titles: ['CTO', 'VP of Engineering', 'Engineering Manager', 'Technical Lead', 'Software Engineer', 'Solutions Architect', 'DevOps Engineer', 'Head of Engineering', 'Principal Engineer'] },
+  { label: 'Operations', titles: ['COO', 'VP of Operations', 'Operations Director', 'Operations Manager', 'General Manager', 'Business Operations Manager', 'Head of Operations', 'Office Manager'] },
+  { label: 'Human Resources', titles: ['CHRO', 'VP of HR', 'HR Director', 'HR Manager', 'People Operations Manager', 'Talent Acquisition Manager', 'Recruiter', 'Head of People', 'Director of HR'] },
+  { label: 'Information Technology', titles: ['CIO', 'IT Director', 'IT Manager', 'Head of IT', 'Systems Administrator', 'Network Engineer', 'IT Support Manager', 'Director of IT'] },
+  { label: 'Legal', titles: ['General Counsel', 'Chief Legal Officer', 'Legal Director', 'Corporate Counsel', 'Attorney', 'Compliance Manager', 'VP of Legal'] },
+  { label: 'Product', titles: ['CPO', 'VP of Product', 'Product Director', 'Product Manager', 'Head of Product', 'Product Owner', 'Director of Product'] },
+  { label: 'Design', titles: ['VP of Design', 'Creative Director', 'Design Director', 'UX Manager', 'Head of Design', 'UX Director'] },
+  { label: 'Medical & Health', titles: ['Chief Medical Officer', 'Medical Director', 'Practice Manager', 'Clinical Director', 'Healthcare Administrator', 'Director of Nursing'] },
+  { label: 'Real Estate & Facilities', titles: ['Head of Real Estate', 'Facilities Manager', 'Property Manager', 'Facilities Director', 'VP of Real Estate'] },
+]
+
+function DepartmentPicker({
+  selected, onChange,
+}: {
+  selected: string[]; onChange: (deps: string[]) => void
+}) {
+  const [search, setSearch] = useState('')
+  const [expanded, setExpanded] = useState<string[]>([])
+
+  const filtered = search
+    ? DEPARTMENT_GROUPS.filter(g =>
+        g.label.toLowerCase().includes(search.toLowerCase()) ||
+        g.titles.some(t => t.toLowerCase().includes(search.toLowerCase()))
+      )
+    : DEPARTMENT_GROUPS
+
+  const toggleExpand = (label: string) =>
+    setExpanded(prev => prev.includes(label) ? prev.filter(g => g !== label) : [...prev, label])
+
+  const toggleDept = (label: string) =>
+    onChange(selected.includes(label) ? selected.filter(s => s !== label) : [...selected, label])
+
+  const toggleTitle = (title: string) =>
+    onChange(selected.includes(title) ? selected.filter(s => s !== title) : [...selected, title])
+
+  return (
+    <div className="border border-[#1E1E1E] rounded overflow-hidden">
+      <div className="px-3 py-2 border-b border-[#1E1E1E] bg-[#0A0A0A]">
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search departments or titles…"
+          className="w-full bg-transparent text-[12px] text-white placeholder-[#3A3A3A] outline-none"
+        />
+      </div>
+      <div className="max-h-60 overflow-y-auto">
+        {filtered.map(g => (
+          <div key={g.label} className="border-b border-[#0F0F0F] last:border-0">
+            <div className="flex items-center px-3 py-2.5 hover:bg-[#0F0F0F] transition-colors">
+              <input
+                type="checkbox"
+                id={`dept-${g.label}`}
+                checked={selected.includes(g.label)}
+                onChange={() => toggleDept(g.label)}
+                className="mr-2.5 accent-[#5E6AD2] cursor-pointer"
+              />
+              <label htmlFor={`dept-${g.label}`} className="flex-1 text-[12px] text-[#A0A0A0] cursor-pointer select-none">
+                {g.label}
+              </label>
+              <button
+                type="button"
+                onClick={() => toggleExpand(g.label)}
+                className="text-[#3A3A3A] hover:text-[#6B6B6B] text-sm px-2 py-0.5 rounded transition-colors"
+              >
+                {expanded.includes(g.label) ? '−' : '+'}
+              </button>
+            </div>
+            {expanded.includes(g.label) && (
+              <div className="pl-9 pb-2 space-y-0.5 bg-[#050505]">
+                {g.titles.map(t => (
+                  <div key={t} className="flex items-center px-2 py-1.5 hover:bg-[#0F0F0F] rounded transition-colors">
+                    <input
+                      type="checkbox"
+                      id={`title-${t}`}
+                      checked={selected.includes(t)}
+                      onChange={() => toggleTitle(t)}
+                      className="mr-2 accent-[#5E6AD2] cursor-pointer"
+                    />
+                    <label htmlFor={`title-${t}`} className="text-[11px] text-[#6B6B6B] cursor-pointer select-none">{t}</label>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -167,7 +281,6 @@ const INDUSTRY_GROUPS = [
       'Apparel & Fashion', 'Luxury Goods & Jewelry', 'Cosmetics & Beauty',
       'Home Goods & Furniture', 'Sports & Outdoors', 'Grocery & Supermarkets',
       'Wholesale Distribution', 'Consumer Goods', 'Pet Products & Services',
-      'Baby & Kids Products',
     ],
   },
   {
@@ -177,7 +290,6 @@ const INDUSTRY_GROUPS = [
       'Graphic Design & Branding', 'Media Production', 'Publishing & Newspapers',
       'Broadcast Media', 'Photography', 'Video & Film Production',
       'Events & Experiential Marketing', 'Content Creation', 'Animation',
-      'Podcast & Audio Production',
     ],
   },
   {
@@ -193,7 +305,7 @@ const INDUSTRY_GROUPS = [
     chips: [
       'Oil & Gas', 'Renewable Energy', 'Solar Energy', 'Wind Energy',
       'Environmental Services', 'Utilities', 'Mining & Natural Resources',
-      'Sustainability & ESG', 'Water Treatment', 'Nuclear Energy',
+      'Sustainability & ESG', 'Water Treatment',
     ],
   },
   {
@@ -210,8 +322,7 @@ const INDUSTRY_GROUPS = [
     chips: [
       'Restaurants & Food Service', 'Hotels & Accommodations', 'Food & Beverage Production',
       'Catering', 'Bars & Nightlife', 'Casino & Gambling', 'Leisure & Travel',
-      'Tourism & Tour Operators', 'Food Distribution', 'Coffee & Cafes',
-      'Fast Food & QSR',
+      'Tourism & Tour Operators', 'Food Distribution', 'Coffee & Cafes', 'Fast Food & QSR',
     ],
   },
   {
@@ -240,8 +351,7 @@ const INDUSTRY_GROUPS = [
     group: 'Sports, Entertainment & Lifestyle',
     chips: [
       'Sports Teams & Leagues', 'Fitness & Gyms', 'Entertainment & Amusement',
-      'Music & Recording', 'Performing Arts', 'Fine Art & Galleries',
-      'Gaming & Esports', 'Media & Streaming',
+      'Music & Recording', 'Performing Arts', 'Fine Art & Galleries', 'Gaming & Esports', 'Media & Streaming',
     ],
   },
   {
@@ -275,30 +385,16 @@ const COUNTRY_REGIONS: Record<string, string[]> = {
     'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington',
     'Washington DC', 'West Virginia', 'Wisconsin', 'Wyoming',
   ],
-  'Canada': [
-    'Alberta', 'British Columbia', 'Manitoba', 'New Brunswick',
-    'Newfoundland & Labrador', 'Nova Scotia', 'Ontario',
-    'Prince Edward Island', 'Quebec', 'Saskatchewan',
-  ],
+  'Canada': ['Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland & Labrador', 'Nova Scotia', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan'],
   'United Kingdom': ['England', 'Scotland', 'Wales', 'Northern Ireland'],
-  'Australia': [
-    'New South Wales', 'Victoria', 'Queensland', 'Western Australia',
-    'South Australia', 'Tasmania', 'ACT', 'Northern Territory',
-  ],
-  'Germany': [
-    'Baden-Württemberg', 'Bavaria', 'Berlin', 'Brandenburg', 'Bremen',
-    'Hamburg', 'Hesse', 'Lower Saxony', 'Mecklenburg-Vorpommern',
-    'North Rhine-Westphalia', 'Rhineland-Palatinate', 'Saarland',
-    'Saxony', 'Saxony-Anhalt', 'Schleswig-Holstein', 'Thuringia',
-  ],
+  'Australia': ['New South Wales', 'Victoria', 'Queensland', 'Western Australia', 'South Australia', 'Tasmania', 'ACT', 'Northern Territory'],
+  'Germany': ['Baden-Württemberg', 'Bavaria', 'Berlin', 'Brandenburg', 'Bremen', 'Hamburg', 'Hesse', 'Lower Saxony', 'North Rhine-Westphalia', 'Rhineland-Palatinate', 'Saxony', 'Thuringia'],
 }
 
-// ── Location picker ────────────────────────────────────────────────────────────
 function LocationPicker({ onChange }: { onChange: (locs: string[]) => void }) {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([])
   const [selectedRegions, setSelectedRegions] = useState<string[]>([])
   const [cities, setCities] = useState<string[]>([])
-
   const stableOnChange = useCallback(onChange, [])
 
   useEffect(() => {
@@ -308,8 +404,7 @@ function LocationPicker({ onChange }: { onChange: (locs: string[]) => void }) {
   const toggleCountry = (c: string) => {
     if (selectedCountries.includes(c)) {
       setSelectedCountries(prev => prev.filter(x => x !== c))
-      const regions = COUNTRY_REGIONS[c] || []
-      setSelectedRegions(prev => prev.filter(r => !regions.includes(r)))
+      setSelectedRegions(prev => prev.filter(r => !(COUNTRY_REGIONS[c] || []).includes(r)))
     } else {
       setSelectedCountries(prev => [...prev, c])
     }
@@ -317,8 +412,6 @@ function LocationPicker({ onChange }: { onChange: (locs: string[]) => void }) {
 
   const toggleRegion = (r: string) =>
     setSelectedRegions(prev => prev.includes(r) ? prev.filter(x => x !== r) : [...prev, r])
-
-  const countriesWithRegions = selectedCountries.filter(c => COUNTRY_REGIONS[c])
 
   return (
     <div className="space-y-4">
@@ -330,8 +423,7 @@ function LocationPicker({ onChange }: { onChange: (locs: string[]) => void }) {
           ))}
         </div>
       </div>
-
-      {countriesWithRegions.map(country => (
+      {selectedCountries.filter(c => COUNTRY_REGIONS[c]).map(country => (
         <div key={country}>
           <p className="text-[11px] text-[#4A4A4A] mb-2">{country} — States / Regions</p>
           <div className="flex flex-wrap gap-1.5">
@@ -341,16 +433,43 @@ function LocationPicker({ onChange }: { onChange: (locs: string[]) => void }) {
           </div>
         </div>
       ))}
-
       <div>
-        <p className="text-[11px] text-[#4A4A4A] mb-2">Specific Cities <span className="text-[#3A3A3A]">(optional — press Enter to add)</span></p>
-        <TagInput tags={cities} onChange={setCities} placeholder="New York, Chicago, Los Angeles…" />
+        <p className="text-[11px] text-[#4A4A4A] mb-2">Specific Cities <span className="text-[#3A3A3A]">(press Enter to add)</span></p>
+        <TagInputWithSuggestions
+          tags={cities}
+          onChange={setCities}
+          placeholder="New York, Chicago, Los Angeles…"
+          suggestions={['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'San Antonio', 'San Diego', 'Dallas', 'San Jose', 'Austin', 'Jacksonville', 'Fort Worth', 'Columbus', 'Charlotte', 'Indianapolis', 'San Francisco', 'Seattle', 'Denver', 'Nashville', 'Boston', 'Las Vegas', 'Miami', 'Atlanta', 'Minneapolis', 'Portland', 'Detroit', 'Toronto', 'Vancouver', 'London', 'Manchester', 'Birmingham', 'Sydney', 'Melbourne', 'Brisbane', 'Dublin', 'Singapore']}
+        />
       </div>
     </div>
   )
 }
 
+// ── Suggestion data ───────────────────────────────────────────────────────────
+const ALL_JOB_TITLE_SUGGESTIONS = DEPARTMENT_GROUPS.flatMap(g => [g.label, ...g.titles])
+
+const KEYWORD_SUGGESTIONS = [
+  'business owner', 'decision maker', 'small business', 'working capital', 'business funding',
+  'cash flow', 'revenue growth', 'entrepreneur', 'startup', 'scaling', 'growth stage',
+  'profitable', 'established business', 'franchise', 'multi-location', 'family-owned',
+  'SaaS', 'B2B', 'B2C', 'e-commerce', 'digital transformation', 'lead generation',
+  'demand generation', 'outbound sales', 'inbound marketing', 'CRM', 'automation',
+  'ROI', 'cost reduction', 'efficiency', 'compliance', 'risk management',
+  'hiring', 'expansion', 'funding raised', 'Series A', 'Series B', 'bootstrapped',
+  'new location', 'IPO', 'acquisition', 'merger', 'revenue-generating',
+  'owner-operated', 'privately held', '10+ employees', '50+ employees',
+]
+
+const KEYWORD_EXCLUDE_SUGGESTIONS = [
+  'startup', 'pre-revenue', 'bootstrapped', 'non-profit', 'volunteer',
+  'government', 'student', 'freelancer', 'solopreneur', 'Fortune 500',
+  'enterprise', 'public company', 'NYSE', 'NASDAQ', 'bankrupt',
+  'intern', 'entry-level', 'junior', 'part-time',
+]
+
 // ── Constants ─────────────────────────────────────────────────────────────────
+const MANAGEMENT_LEVELS = ['Owner', 'Founder', 'C-Suite', 'Partner', 'VP', 'Head', 'Director', 'Manager', 'Senior', 'Entry', 'Intern']
 const COMPANY_SIZES = ['1-10', '11-25', '26-50', '51-100', '101-250', '251-500', '500+']
 const REVENUES = ['$0-1M', '$1-10M', '$10-50M', '$50-100M', '$100M+']
 const CTA_TYPES = ['Phone Call', 'Discovery Call', 'Demo', 'Site Visit', 'Free Audit']
@@ -369,6 +488,8 @@ interface FormState {
   company_size: string[]
   revenue_ranges: string[]
   locations: string[]
+  management_levels: string[]
+  departments: string[]
   job_titles_include: string[]
   job_titles_exclude: string[]
   keywords_include: string[]
@@ -389,6 +510,8 @@ export default function Stage3({ onComplete }: Props) {
     company_size: [],
     revenue_ranges: [],
     locations: [],
+    management_levels: [],
+    departments: [],
     job_titles_include: [],
     job_titles_exclude: [],
     keywords_include: [],
@@ -406,7 +529,7 @@ export default function Stage3({ onComplete }: Props) {
     setForm(prev => ({ ...prev, [key]: val }))
 
   const screen1Valid = form.industries.length > 0 && form.locations.length > 0
-  const screen2Valid = form.job_titles_include.length > 0 && form.offer_description.trim().length > 0
+  const screen2Valid = form.offer_description.trim().length > 0
 
   const handleSubmit = async () => {
     if (!screen2Valid) return
@@ -417,11 +540,7 @@ export default function Stage3({ onComplete }: Props) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         stage: 3,
-        data: {
-          ...form,
-          cta_type: form.cta_type[0] || null,
-          deal_size_range: form.deal_size_range[0] || null,
-        },
+        data: { ...form, cta_type: form.cta_type[0] || null, deal_size_range: form.deal_size_range[0] || null },
       }),
     })
     setSaving(false)
@@ -459,7 +578,6 @@ export default function Stage3({ onComplete }: Props) {
       {/* ── Screen 1 ──────────────────────────────────────────────────────── */}
       {screen === 1 && (
         <div className="space-y-6">
-          {/* Industry */}
           <div>
             <SectionLabel>Industry</SectionLabel>
             <div className="space-y-1.5">
@@ -469,12 +587,7 @@ export default function Stage3({ onComplete }: Props) {
                   <CollapsibleGroup key={g.group} label={g.group} count={selectedCount} defaultOpen={i === 0}>
                     <div className="flex flex-wrap gap-1.5">
                       {g.chips.map(chip => (
-                        <Chip
-                          key={chip}
-                          label={chip}
-                          selected={form.industries.includes(chip)}
-                          onClick={() => set('industries', toggle(form.industries, chip))}
-                        />
+                        <Chip key={chip} label={chip} selected={form.industries.includes(chip)} onClick={() => set('industries', toggle(form.industries, chip))} />
                       ))}
                     </div>
                   </CollapsibleGroup>
@@ -483,37 +596,24 @@ export default function Stage3({ onComplete }: Props) {
             </div>
           </div>
 
-          {/* Company Size — multi-select */}
           <div>
             <SectionLabel>Company Size (employees)</SectionLabel>
             <div className="flex flex-wrap gap-1.5">
               {COMPANY_SIZES.map(s => (
-                <Chip
-                  key={s}
-                  label={s}
-                  selected={form.company_size.includes(s)}
-                  onClick={() => set('company_size', toggle(form.company_size, s))}
-                />
+                <Chip key={s} label={s} selected={form.company_size.includes(s)} onClick={() => set('company_size', toggle(form.company_size, s))} />
               ))}
             </div>
           </div>
 
-          {/* Revenue */}
           <div>
             <SectionLabel>Revenue Range</SectionLabel>
             <div className="flex flex-wrap gap-1.5">
               {REVENUES.map(r => (
-                <Chip
-                  key={r}
-                  label={r}
-                  selected={form.revenue_ranges.includes(r)}
-                  onClick={() => set('revenue_ranges', toggle(form.revenue_ranges, r))}
-                />
+                <Chip key={r} label={r} selected={form.revenue_ranges.includes(r)} onClick={() => set('revenue_ranges', toggle(form.revenue_ranges, r))} />
               ))}
             </div>
           </div>
 
-          {/* Location */}
           <div>
             <SectionLabel>Location</SectionLabel>
             <LocationPicker onChange={locs => set('locations', locs)} />
@@ -534,17 +634,52 @@ export default function Stage3({ onComplete }: Props) {
       {/* ── Screen 2 ──────────────────────────────────────────────────────── */}
       {screen === 2 && (
         <div className="space-y-6">
+
+          {/* Management Level */}
+          <div>
+            <SectionLabel>Management Level</SectionLabel>
+            <div className="flex flex-wrap gap-1.5">
+              {MANAGEMENT_LEVELS.map(level => (
+                <Chip
+                  key={level}
+                  label={level}
+                  selected={form.management_levels.includes(level)}
+                  onClick={() => set('management_levels', toggle(form.management_levels, level))}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Departments */}
+          <div>
+            <SectionLabel>Departments & Job Function</SectionLabel>
+            <DepartmentPicker
+              selected={form.departments}
+              onChange={deps => set('departments', deps)}
+            />
+          </div>
+
           {/* Job Titles */}
           <div>
             <SectionLabel>Job Titles</SectionLabel>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <p className="text-[11px] text-[#4A4A4A] mb-1.5">Include</p>
-                <TagInput tags={form.job_titles_include} onChange={v => set('job_titles_include', v)} placeholder="CEO, Owner, Managing Director…" />
+                <TagInputWithSuggestions
+                  tags={form.job_titles_include}
+                  onChange={v => set('job_titles_include', v)}
+                  placeholder="CEO, Owner, Managing Director…"
+                  suggestions={ALL_JOB_TITLE_SUGGESTIONS}
+                />
               </div>
               <div>
                 <p className="text-[11px] text-[#4A4A4A] mb-1.5">Exclude</p>
-                <TagInput tags={form.job_titles_exclude} onChange={v => set('job_titles_exclude', v)} placeholder="Intern, Assistant…" />
+                <TagInputWithSuggestions
+                  tags={form.job_titles_exclude}
+                  onChange={v => set('job_titles_exclude', v)}
+                  placeholder="Intern, Assistant…"
+                  suggestions={['Intern', 'Assistant', 'Junior', 'Entry Level', 'Trainee', 'Volunteer', 'Student', 'Part-time']}
+                />
               </div>
             </div>
           </div>
@@ -555,11 +690,21 @@ export default function Stage3({ onComplete }: Props) {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <p className="text-[11px] text-[#4A4A4A] mb-1.5">Include</p>
-                <TagInput tags={form.keywords_include} onChange={v => set('keywords_include', v)} placeholder="merchant cash advance, business funding…" />
+                <TagInputWithSuggestions
+                  tags={form.keywords_include}
+                  onChange={v => set('keywords_include', v)}
+                  placeholder="business owner, working capital…"
+                  suggestions={KEYWORD_SUGGESTIONS}
+                />
               </div>
               <div>
                 <p className="text-[11px] text-[#4A4A4A] mb-1.5">Exclude</p>
-                <TagInput tags={form.keywords_exclude} onChange={v => set('keywords_exclude', v)} placeholder="enterprise, Fortune 500…" />
+                <TagInputWithSuggestions
+                  tags={form.keywords_exclude}
+                  onChange={v => set('keywords_exclude', v)}
+                  placeholder="enterprise, Fortune 500…"
+                  suggestions={KEYWORD_EXCLUDE_SUGGESTIONS}
+                />
               </div>
             </div>
           </div>
@@ -587,47 +732,21 @@ export default function Stage3({ onComplete }: Props) {
           {/* Freetext */}
           <div className="space-y-3">
             <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B6B6B] mb-1.5">
-                Describe your offer in one sentence
-              </label>
-              <input
-                type="text"
-                value={form.offer_description}
-                onChange={e => set('offer_description', e.target.value)}
-                placeholder="We help restaurant owners get $10K-$500K in working capital within 48 hours"
-                className="w-full px-3 py-2.5 bg-[#0F0F0F] border border-[#1E1E1E] rounded text-[13px] text-white placeholder-[#3A3A3A] focus:outline-none focus:border-[#3A3A3A] transition-colors"
-              />
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B6B6B] mb-1.5">Describe your offer in one sentence</label>
+              <input type="text" value={form.offer_description} onChange={e => set('offer_description', e.target.value)} placeholder="We help restaurant owners get $10K-$500K in working capital within 48 hours" className="w-full px-3 py-2.5 bg-[#0F0F0F] border border-[#1E1E1E] rounded text-[13px] text-white placeholder-[#3A3A3A] focus:outline-none focus:border-[#3A3A3A] transition-colors" />
             </div>
             <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B6B6B] mb-1.5">
-                Describe your best ever customer
-              </label>
-              <input
-                type="text"
-                value={form.best_customer_description}
-                onChange={e => set('best_customer_description', e.target.value)}
-                placeholder="Family-owned restaurant, 2 locations, needed capital fast, closed in 3 days"
-                className="w-full px-3 py-2.5 bg-[#0F0F0F] border border-[#1E1E1E] rounded text-[13px] text-white placeholder-[#3A3A3A] focus:outline-none focus:border-[#3A3A3A] transition-colors"
-              />
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B6B6B] mb-1.5">Describe your best ever customer</label>
+              <input type="text" value={form.best_customer_description} onChange={e => set('best_customer_description', e.target.value)} placeholder="Family-owned restaurant, 2 locations, needed capital fast, closed in 3 days" className="w-full px-3 py-2.5 bg-[#0F0F0F] border border-[#1E1E1E] rounded text-[13px] text-white placeholder-[#3A3A3A] focus:outline-none focus:border-[#3A3A3A] transition-colors" />
             </div>
             <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B6B6B] mb-1.5">
-                Your Calendly or booking link
-              </label>
-              <input
-                type="text"
-                value={form.calendly_link}
-                onChange={e => set('calendly_link', e.target.value)}
-                placeholder="calendly.com/yourname"
-                className="w-full px-3 py-2.5 bg-[#0F0F0F] border border-[#1E1E1E] rounded text-[13px] text-white placeholder-[#3A3A3A] focus:outline-none focus:border-[#3A3A3A] transition-colors"
-              />
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B6B6B] mb-1.5">Your Calendly or booking link</label>
+              <input type="text" value={form.calendly_link} onChange={e => set('calendly_link', e.target.value)} placeholder="calendly.com/yourname" className="w-full px-3 py-2.5 bg-[#0F0F0F] border border-[#1E1E1E] rounded text-[13px] text-white placeholder-[#3A3A3A] focus:outline-none focus:border-[#3A3A3A] transition-colors" />
             </div>
           </div>
 
           <div className="flex justify-between pt-2">
-            <button onClick={() => setScreen(1)} className="text-[13px] text-[#6B6B6B] hover:text-white transition-colors">
-              ← Back
-            </button>
+            <button onClick={() => setScreen(1)} className="text-[13px] text-[#6B6B6B] hover:text-white transition-colors">← Back</button>
             <button
               onClick={handleSubmit}
               disabled={!screen2Valid || saving}
