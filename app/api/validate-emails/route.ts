@@ -178,8 +178,12 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        const csv = serializeCSV(enrichedHeaders, enrichedRows)
-        const validCount = enrichedRows.filter(r => r[r.length - 1] === 'valid').length
+        // Filter to valid rows only, strip the validation_status column
+        const validRows = enrichedRows.filter(r => r[r.length - 1] === 'valid')
+        const validCount = validRows.length
+        const outputRows = validRows.map(r => r.slice(0, -1))
+        const csv = serializeCSV(headers, outputRows)
+
         const runId = crypto.randomUUID()
         const storagePath = `${runId}.csv`
 
