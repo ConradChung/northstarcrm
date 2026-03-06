@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
-import { Upload, RotateCcw, CheckCircle2, Download, Clock } from 'lucide-react'
+import { Upload, RotateCcw, CheckCircle2, Download, Clock, Clipboard, ClipboardCheck } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface ValidationRun {
@@ -98,6 +98,8 @@ export default function EmailValidator() {
   const [totalCount, setTotalCount] = useState(0)
   const [runs, setRuns] = useState<ValidationRun[]>([])
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
+  const [validCsv, setValidCsv] = useState<string>('')
+  const [copied, setCopied] = useState(false)
   const supabase = createClient()
 
   const loadRuns = useCallback(async () => {
@@ -181,6 +183,7 @@ export default function EmailValidator() {
           } else if (payload.type === 'complete') {
             setValidCount(runningValid)
             setTotalCount(runningTotal)
+            setValidCsv(payload.csv)
             const blob = new Blob([payload.csv], { type: 'text/csv' })
             const url = URL.createObjectURL(blob)
             const a = document.createElement('a')
@@ -219,6 +222,28 @@ export default function EmailValidator() {
     submit(fileRef.current, column)
   }
 
+  function csvToTsv(csv: string): string {
+    return csv.split('\r\n').map(row => {
+      // Simple CSV→TSV: replace comma delimiters with tabs (handles quoted fields)
+      const fields: string[] = []
+      let cur = '', inQ = false
+      for (let i = 0; i < row.length; i++) {
+        if (row[i] === '"') { inQ = !inQ }
+        else if (row[i] === ',' && !inQ) { fields.push(cur); cur = '' }
+        else { cur += row[i] }
+      }
+      fields.push(cur)
+      return fields.join('\t')
+    }).join('\n')
+  }
+
+  async function copyForClay() {
+    if (!validCsv) return
+    await navigator.clipboard.writeText(csvToTsv(validCsv))
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
+  }
+
   function reset() {
     setStep('upload')
     setAmbiguousColumns([])
@@ -227,6 +252,8 @@ export default function EmailValidator() {
     setValidCount(0)
     setTotalCount(0)
     setFileName('')
+    setValidCsv('')
+    setCopied(false)
     fileRef.current = null
   }
 
@@ -310,8 +337,15 @@ export default function EmailValidator() {
               <p className="text-[13px] text-white font-medium">Validation complete</p>
               <p className="text-[12px] text-[#6B6B6B] mt-0.5">CSV downloaded to your device</p>
             </div>
+            <button
+              onClick={copyForClay}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2A2A2A] text-[13px] font-medium text-white hover:border-[#3A3A3A] hover:bg-[#141414] transition-colors"
+            >
+              {copied ? <ClipboardCheck size={14} className="text-[#22c55e]" /> : <Clipboard size={14} />}
+              {copied ? 'Copied! Paste into Clay' : 'Copy for Clay'}
+            </button>
             <Button variant="ghost" size="sm" onClick={reset}
-              className="text-[12px] text-[#4A4A4A] hover:text-white hover:bg-[#1A1A1A] rounded-lg mt-1">
+              className="text-[12px] text-[#4A4A4A] hover:text-white hover:bg-[#1A1A1A] rounded-lg">
               <RotateCcw size={12} className="mr-1.5" /> Validate another file
             </Button>
           </div>
