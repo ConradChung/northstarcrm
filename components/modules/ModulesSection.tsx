@@ -8,7 +8,7 @@ import { GlowingEffect } from '@/components/ui/glowing-effect'
 const MODULES = [
   {
     id: 1,
-    title: 'Welcome to NorthStar',
+    title: 'Welcome to Northstar',
     description: 'A walkthrough of your dashboard and what to expect over the next few days.',
     duration: '2 min',
     category: 'Getting Started',

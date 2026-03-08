@@ -49,7 +49,7 @@ function SidebarLogo() {
     <div className="flex items-center gap-3 px-3 py-2 mb-2">
       <Image
         src="/northstar-logo-white.png"
-        alt="NorthStar"
+        alt="Northstar"
         width={28}
         height={28}
         className="shrink-0 rounded-lg"
@@ -61,7 +61,7 @@ function SidebarLogo() {
         }}
         className="text-[13px] font-semibold text-white whitespace-nowrap"
       >
-        NorthStar
+        Northstar
       </motion.span>
     </div>
   )

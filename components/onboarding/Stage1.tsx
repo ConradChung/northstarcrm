@@ -56,7 +56,7 @@ export default function Stage1({ companyName, onComplete }: Props) {
     const data = await res.json()
     setGeneratingDomains(false)
     if (data.domains) {
-      setDomains(data.domains)
+      setDomains(data.domains.filter((d: Domain) => d.available))
     } else {
       setError(data.error || 'Failed to generate domains')
     }
@@ -174,7 +174,7 @@ export default function Stage1({ companyName, onComplete }: Props) {
             onClick={generateDomains}
             className="w-full border border-dashed border-[#2A2A2A] hover:border-[#5E6AD2] rounded py-8 text-[13px] text-[#4A4A4A] hover:text-[#6B6B6B] transition-colors"
           >
-            Click to generate 30 domain suggestions based on your company name
+            Click to generate available domain suggestions based on your company name
           </button>
         )}
 
@@ -191,19 +191,14 @@ export default function Stage1({ companyName, onComplete }: Props) {
               <button
                 key={d.name}
                 onClick={() => toggleDomain(d.name)}
-                className={`flex items-center justify-between px-3 py-2 rounded text-[13px] border transition-all text-left ${
+                className={`flex items-center gap-2 px-3 py-2 rounded text-[13px] border transition-all text-left ${
                   selectedDomains.includes(d.name)
                     ? 'border-[#5E6AD2] bg-[#5E6AD2]/10 text-white'
                     : 'border-[#1E1E1E] bg-[#0F0F0F] text-[#A0A0A0] hover:border-[#2A2A2A] hover:text-white'
                 }`}
               >
+                <span className="w-1.5 h-1.5 rounded-full bg-[#2ECC71] shrink-0" />
                 <span className="truncate">{d.name}</span>
-                <span
-                  className={`w-2 h-2 rounded-full shrink-0 ml-2 ${
-                    d.available ? 'bg-[#2ECC71]' : 'bg-[#E74C3C]'
-                  }`}
-                  title={d.available ? 'Likely available' : 'Likely taken'}
-                />
               </button>
             ))}
           </div>

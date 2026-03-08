@@ -87,7 +87,11 @@ function RingChart({ pct, valid, invalid }: { pct: number; valid: number; invali
   )
 }
 
-export default function EmailValidator() {
+interface Props {
+  onStatusChange?: (status: { step: Step; processed: number; total: number } | null) => void
+}
+
+export default function EmailValidator({ onStatusChange }: Props) {
   const [step, setStep] = useState<Step>('upload')
   const [ambiguousColumns, setAmbiguousColumns] = useState<string[]>([])
   const [error, setError] = useState<string>('')
@@ -98,9 +102,20 @@ export default function EmailValidator() {
   const [totalCount, setTotalCount] = useState(0)
   const [runs, setRuns] = useState<ValidationRun[]>([])
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
+  const [copyingId, setCopyingId] = useState<string | null>(null)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
   const [validCsv, setValidCsv] = useState<string>('')
   const [copied, setCopied] = useState(false)
   const supabase = createClient()
+
+  useEffect(() => {
+    if (step === 'processing') {
+      onStatusChange?.({ step, processed: progress.processed, total: progress.total })
+    } else {
+      onStatusChange?.(null)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, progress.processed, progress.total])
 
   const loadRuns = useCallback(async () => {
     const { data } = await supabase
@@ -184,15 +199,6 @@ export default function EmailValidator() {
             setValidCount(runningValid)
             setTotalCount(runningTotal)
             setValidCsv(payload.csv)
-            const blob = new Blob([payload.csv], { type: 'text/csv' })
-            const url = URL.createObjectURL(blob)
-            const a = document.createElement('a')
-            a.href = url
-            a.download = 'validated_emails.csv'
-            document.body.appendChild(a)
-            a.click()
-            document.body.removeChild(a)
-            URL.revokeObjectURL(url)
             setStep('done')
             loadRuns()
           }
@@ -237,11 +243,36 @@ export default function EmailValidator() {
     }).join('\n')
   }
 
+  function downloadCurrent() {
+    if (!validCsv) return
+    const blob = new Blob([validCsv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'validated_emails.csv'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   async function copyForClay() {
     if (!validCsv) return
     await navigator.clipboard.writeText(csvToTsv(validCsv))
     setCopied(true)
     setTimeout(() => setCopied(false), 2500)
+  }
+
+  async function copyRunForClay(run: ValidationRun) {
+    setCopyingId(run.id)
+    const { data } = await supabase.storage.from('validation-results').createSignedUrl(run.storage_path, 60)
+    if (!data?.signedUrl) { setCopyingId(null); return }
+    const res = await fetch(data.signedUrl)
+    const csv = await res.text()
+    await navigator.clipboard.writeText(csvToTsv(csv))
+    setCopyingId(null)
+    setCopiedId(run.id)
+    setTimeout(() => setCopiedId(null), 2500)
   }
 
   function reset() {
@@ -335,15 +366,24 @@ export default function EmailValidator() {
             </div>
             <div className="text-center">
               <p className="text-[13px] text-white font-medium">Validation complete</p>
-              <p className="text-[12px] text-[#6B6B6B] mt-0.5">CSV downloaded to your device</p>
+              <p className="text-[12px] text-[#6B6B6B] mt-0.5">Ready to download</p>
             </div>
-            <button
-              onClick={copyForClay}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2A2A2A] text-[13px] font-medium text-white hover:border-[#3A3A3A] hover:bg-[#141414] transition-colors"
-            >
-              {copied ? <ClipboardCheck size={14} className="text-[#22c55e]" /> : <Clipboard size={14} />}
-              {copied ? 'Copied! Paste into Clay' : 'Copy for Clay'}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={downloadCurrent}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-[#0A0A0A] text-[13px] font-medium hover:bg-[#E8E8E8] transition-colors"
+              >
+                <Download size={14} />
+                Download CSV
+              </button>
+              <button
+                onClick={copyForClay}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2A2A2A] text-[13px] font-medium text-white hover:border-[#3A3A3A] hover:bg-[#141414] transition-colors"
+              >
+                {copied ? <ClipboardCheck size={14} className="text-[#22c55e]" /> : <Clipboard size={14} />}
+                {copied ? 'Copied!' : 'Copy for Clay'}
+              </button>
+            </div>
             <Button variant="ghost" size="sm" onClick={reset}
               className="text-[12px] text-[#4A4A4A] hover:text-white hover:bg-[#1A1A1A] rounded-lg">
               <RotateCcw size={12} className="mr-1.5" /> Validate another file
@@ -401,14 +441,24 @@ export default function EmailValidator() {
                       <span className="text-[11px] text-[#22c55e]">{validPct}% valid</span>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDownload(run)}
-                    disabled={downloadingId === run.id}
-                    className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#2A2A2A] text-[12px] text-[#6B6B6B] hover:border-[#3A3A3A] hover:text-white transition-colors disabled:opacity-40"
-                  >
-                    <Download size={12} />
-                    {downloadingId === run.id ? 'Getting link…' : 'Download'}
-                  </button>
+                  <div className="shrink-0 flex items-center gap-2">
+                    <button
+                      onClick={() => copyRunForClay(run)}
+                      disabled={copyingId === run.id}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#2A2A2A] text-[12px] text-[#6B6B6B] hover:border-[#3A3A3A] hover:text-white transition-colors disabled:opacity-40"
+                    >
+                      {copiedId === run.id ? <ClipboardCheck size={12} className="text-[#22c55e]" /> : <Clipboard size={12} />}
+                      {copyingId === run.id ? 'Copying…' : copiedId === run.id ? 'Copied!' : 'Copy for Clay'}
+                    </button>
+                    <button
+                      onClick={() => handleDownload(run)}
+                      disabled={downloadingId === run.id}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#2A2A2A] text-[12px] text-[#6B6B6B] hover:border-[#3A3A3A] hover:text-white transition-colors disabled:opacity-40"
+                    >
+                      <Download size={12} />
+                      {downloadingId === run.id ? 'Getting link…' : 'Download'}
+                    </button>
+                  </div>
                 </div>
               )
             })}

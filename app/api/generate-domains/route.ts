@@ -44,17 +44,16 @@ Return ONLY a JSON array of 30 strings, no other text:
     domainList = []
   }
 
-  // Check DNS availability for each domain in parallel
+  // Check domain availability via RDAP (official ICANN protocol, no API key needed)
+  // 404 = not registered (available), 200 = registered (taken)
   const domains = await Promise.all(
     domainList.slice(0, 30).map(async (name: string) => {
       try {
         const res = await fetch(
-          `https://dns.google/resolve?name=${encodeURIComponent(name)}&type=A`,
-          { signal: AbortSignal.timeout(3000) }
+          `https://rdap.org/domain/${encodeURIComponent(name)}`,
+          { signal: AbortSignal.timeout(5000) }
         )
-        const data = await res.json()
-        // Status 3 = NXDOMAIN (no DNS record = likely unregistered)
-        return { name, available: data.Status === 3 }
+        return { name, available: res.status === 404 }
       } catch {
         return { name, available: false }
       }

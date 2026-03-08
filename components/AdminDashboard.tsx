@@ -12,12 +12,18 @@ import {
   Database,
   Mail,
   LogOut,
+  Wand2,
+  Layers,
+  Search,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Sidebar, SidebarBody, useSidebar } from '@/components/ui/sidebar'
 import CampaignAnalytics from '@/components/CampaignAnalytics'
 import EmailValidator from '@/components/EmailValidator'
 import ClientNextSteps from '@/components/ClientNextSteps'
+import CopywriterAgent from '@/components/CopywriterAgent'
+import ClayPromptGenerator from '@/components/ClayPromptGenerator'
+import MarketResearchAgent from '@/components/MarketResearchAgent'
 
 interface Client {
   id: string
@@ -37,7 +43,7 @@ interface Campaign {
 }
 
 
-type Section = 'clients' | 'campaigns' | 'onboarding' | 'onboarding-data' | 'email-validator'
+type Section = 'clients' | 'campaigns' | 'onboarding' | 'onboarding-data' | 'email-validator' | 'copywriter' | 'clay-prompts' | 'market-research'
 
 // ── Sidebar sub-components ──
 
@@ -151,6 +157,7 @@ export default function AdminDashboard() {
   const [onboardingDataClientId, setOnboardingDataClientId] = useState<string>('')
   const [checklistClientId, setChecklistClientId] = useState<string>('')
   const [stageData, setStageData] = useState<{ stage1: Record<string, unknown> | null; stage2: Record<string, unknown> | null; stage3: Record<string, unknown> | null }>({ stage1: null, stage2: null, stage3: null })
+  const [validatorStatus, setValidatorStatus] = useState<{ step: string; processed: number; total: number } | null>(null)
 
   const router = useRouter()
   const supabase = createClient()
@@ -229,14 +236,6 @@ export default function AdminDashboard() {
 
   const filteredCampaigns = selectedClient ? campaigns.filter(c => c.client_id === selectedClient) : campaigns
 
-  const navItems: { id: Section; label: string; icon: React.ReactNode }[] = [
-    { id: 'clients', label: 'Clients', icon: <Users size={18} /> },
-    { id: 'campaigns', label: 'Campaigns', icon: <Megaphone size={18} /> },
-    { id: 'onboarding', label: 'Client Next Steps', icon: <ClipboardList size={18} /> },
-    { id: 'onboarding-data', label: 'Onboarding Data', icon: <Database size={18} /> },
-    { id: 'email-validator', label: 'Email Validator', icon: <Mail size={18} /> },
-  ]
-
   const navigate = (section: Section) => {
     setActiveSection(section)
     setSelectedCampaign(null)
@@ -248,15 +247,26 @@ export default function AdminDashboard() {
         <SidebarBody className="!bg-[#111111] !border !border-[#1E1E1E] !w-[220px] !rounded-2xl !h-full justify-between gap-8">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden gap-0.5">
             <SidebarLogo />
-            <div className="mt-2 flex flex-col gap-0.5">
-              {navItems.map(item => (
-                <NavItem
-                  key={item.id}
-                  icon={item.icon}
-                  label={item.label}
-                  active={activeSection === item.id}
-                  onClick={() => navigate(item.id)}
-                />
+            <div className="mt-3 flex flex-col gap-0.5">
+              <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-[#3A3A3A]">Management</p>
+              {([
+                { id: 'clients', label: 'Clients', icon: <Users size={18} /> },
+                { id: 'campaigns', label: 'Campaigns', icon: <Megaphone size={18} /> },
+                { id: 'onboarding', label: 'Client Next Steps', icon: <ClipboardList size={18} /> },
+                { id: 'onboarding-data', label: 'Onboarding Data', icon: <Database size={18} /> },
+                { id: 'email-validator', label: 'Email Validator', icon: <Mail size={18} /> },
+              ] as { id: Section; label: string; icon: React.ReactNode }[]).map(item => (
+                <NavItem key={item.id} icon={item.icon} label={item.label}
+                  active={activeSection === item.id} onClick={() => navigate(item.id)} />
+              ))}
+              <p className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-[#3A3A3A]">AI Tools</p>
+              {([
+                { id: 'copywriter', label: 'Copywriter', icon: <Wand2 size={18} /> },
+                { id: 'clay-prompts', label: 'Clay Prompts', icon: <Layers size={18} /> },
+                { id: 'market-research', label: 'Market Research', icon: <Search size={18} /> },
+              ] as { id: Section; label: string; icon: React.ReactNode }[]).map(item => (
+                <NavItem key={item.id} icon={item.icon} label={item.label}
+                  active={activeSection === item.id} onClick={() => navigate(item.id)} />
               ))}
             </div>
           </div>
@@ -265,13 +275,13 @@ export default function AdminDashboard() {
       </Sidebar>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto bg-[#0A0A0A] rounded-2xl">
+      <main className="flex-1 overflow-hidden bg-[#0A0A0A] rounded-2xl">
         <AnimatePresence mode="wait">
 
           {/* ── Clients ── */}
           {activeSection === 'clients' && (
             <motion.div key="clients" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
-              className="max-w-3xl mx-auto px-6 py-8">
+              className="max-w-3xl mx-auto px-6 py-8 overflow-y-auto h-full">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-base font-medium text-white">Clients</h2>
                 <button onClick={() => setShowCreateClient(v => !v)} className={btnPrimary}>
@@ -359,7 +369,7 @@ export default function AdminDashboard() {
           {/* ── Campaigns ── */}
           {activeSection === 'campaigns' && !selectedCampaign && (
             <motion.div key="campaigns" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
-              className="max-w-3xl mx-auto px-6 py-8">
+              className="max-w-3xl mx-auto px-6 py-8 overflow-y-auto h-full">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-base font-medium text-white">Campaigns</h2>
                 <button onClick={() => setShowAddCampaign(v => !v)} className={btnPrimary}>
@@ -403,7 +413,7 @@ export default function AdminDashboard() {
 
           {activeSection === 'campaigns' && selectedCampaign && (
             <motion.div key="campaign-detail" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
-              className="max-w-3xl mx-auto px-6 py-8">
+              className="max-w-3xl mx-auto px-6 py-8 overflow-y-auto h-full">
               <CampaignAnalytics
                 campaignId={selectedCampaign.instantly_campaign_id}
                 campaignName={selectedCampaign.campaign_name}
@@ -415,9 +425,9 @@ export default function AdminDashboard() {
           {/* ── Client Next Steps ── */}
           {activeSection === 'onboarding' && (
             <motion.div key="onboarding" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
-              className="max-w-3xl mx-auto px-6 py-8">
-              <div className="mb-6">
-                <h2 className="text-base font-medium text-white mb-4">Client Next Steps</h2>
+              className="w-full h-full flex flex-col">
+              <div className="px-6 py-4 border-b border-[#1A1A1A] flex items-center gap-4 shrink-0">
+                <h2 className="text-base font-medium text-white">Client Next Steps</h2>
                 <select
                   value={checklistClientId}
                   onChange={e => setChecklistClientId(e.target.value)}
@@ -429,25 +439,32 @@ export default function AdminDashboard() {
                 </select>
               </div>
 
-              {checklistClientId && (() => {
-                const client = clients.find(c => c.id === checklistClientId)
-                const hasCampaign = campaigns.some(c => c.client_id === checklistClientId)
-                return (
-                  <ClientNextSteps
-                    clientId={checklistClientId}
-                    docusignUrl={client?.docusign_url ?? null}
-                    onboardingStage={client?.onboarding_stage ?? 0}
-                    hasCampaign={hasCampaign}
-                  />
-                )
-              })()}
+              <div className="flex-1 overflow-hidden">
+                {checklistClientId && (() => {
+                  const client = clients.find(c => c.id === checklistClientId)
+                  const hasCampaign = campaigns.some(c => c.client_id === checklistClientId)
+                  return (
+                    <ClientNextSteps
+                      clientId={checklistClientId}
+                      docusignUrl={client?.docusign_url ?? null}
+                      onboardingStage={client?.onboarding_stage ?? 0}
+                      hasCampaign={hasCampaign}
+                    />
+                  )
+                })()}
+                {!checklistClientId && (
+                  <div className="flex items-center justify-center h-full text-[13px] text-[#3A3A3A]">
+                    Select a client to view their canvas
+                  </div>
+                )}
+              </div>
             </motion.div>
           )}
 
           {/* ── Onboarding Data ── */}
           {activeSection === 'onboarding-data' && (
             <motion.div key="onboarding-data" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
-              className="max-w-3xl mx-auto px-6 py-8">
+              className="max-w-3xl mx-auto px-6 py-8 overflow-y-auto h-full">
               <div className="mb-6">
                 <h2 className="text-base font-medium text-white mb-4">Onboarding Data</h2>
                 <select
@@ -554,16 +571,75 @@ export default function AdminDashboard() {
             </motion.div>
           )}
 
-          {/* ── Email Validator ── */}
-          {activeSection === 'email-validator' && (
-            <motion.div key="email-validator" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
-              className="max-w-3xl mx-auto px-6 py-8">
-              <EmailValidator />
+          {/* ── Copywriter ── */}
+          {activeSection === 'copywriter' && (
+            <motion.div key="copywriter" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
+              className="px-6 py-8">
+              <CopywriterAgent clients={clients} />
+            </motion.div>
+          )}
+
+          {/* ── Clay Prompts ── */}
+          {activeSection === 'clay-prompts' && (
+            <motion.div key="clay-prompts" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
+              className="px-6 py-8">
+              <ClayPromptGenerator clients={clients} />
+            </motion.div>
+          )}
+
+          {/* ── Market Research ── */}
+          {activeSection === 'market-research' && (
+            <motion.div key="market-research" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
+              className="px-6 py-8">
+              <MarketResearchAgent clients={clients} />
             </motion.div>
           )}
 
         </AnimatePresence>
+
+        {/* ── Email Validator (always mounted so validation never drops) ── */}
+        <div className={activeSection !== 'email-validator' ? 'invisible h-0 overflow-hidden' : ''}>
+          <motion.div
+            animate={{ opacity: activeSection === 'email-validator' ? 1 : 0 }}
+            transition={{ duration: 0.15 }}
+            className="max-w-3xl mx-auto px-6 py-8 overflow-y-auto h-full"
+          >
+            <EmailValidator onStatusChange={setValidatorStatus} />
+          </motion.div>
+        </div>
+
       </main>
+
+      {/* ── Floating validator mini-bar ── */}
+      {validatorStatus && activeSection !== 'email-validator' && (
+        <button
+          onClick={() => setActiveSection('email-validator')}
+          className="fixed bottom-5 right-5 z-50 flex items-center gap-3 px-4 py-3 bg-[#111111] border border-[#2A2A2A] rounded-xl shadow-xl hover:border-[#3A3A3A] transition-colors"
+          style={{ minWidth: 260 }}
+        >
+          <span className="w-2 h-2 rounded-full bg-[#5E6AD2] animate-pulse shrink-0" />
+          <div className="flex-1 min-w-0 text-left">
+            <p className="text-[12px] text-white font-medium leading-none mb-1.5">
+              Email Validator running
+            </p>
+            <div className="h-1 bg-[#1E1E1E] rounded-full overflow-hidden">
+              <div
+                className="h-full bg-[#5E6AD2] rounded-full transition-all duration-300"
+                style={{
+                  width: validatorStatus.total > 0
+                    ? `${Math.round((validatorStatus.processed / validatorStatus.total) * 100)}%`
+                    : '5%'
+                }}
+              />
+            </div>
+            {validatorStatus.total > 0 && (
+              <p className="text-[11px] text-[#5A5A5A] mt-1 leading-none tabular-nums">
+                {validatorStatus.processed} / {validatorStatus.total}
+              </p>
+            )}
+          </div>
+        </button>
+      )}
     </div>
   )
 }
