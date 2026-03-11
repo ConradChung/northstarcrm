@@ -267,12 +267,16 @@ export default function AdminDashboard() {
       alert('Logo must be under 512 KB')
       return
     }
+    const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'])
+    if (!ALLOWED_TYPES.has(file.type)) {
+      alert('Only JPG, PNG, GIF, WebP, or AVIF images are allowed.')
+      return
+    }
     setLogoUploading(clientId)
-    const ext = file.name.split('.').pop()
-    const path = `${clientId}/logo.${ext}`
+    const path = `${clientId}/logo`
     const { error: uploadError } = await supabase.storage
       .from('logos')
-      .upload(path, file, { upsert: true })
+      .upload(path, file, { upsert: true, contentType: file.type })
     if (uploadError) {
       alert(`Upload failed: ${uploadError.message}`)
       setLogoUploading(null)
@@ -280,7 +284,12 @@ export default function AdminDashboard() {
     }
     const { data } = supabase.storage.from('logos').getPublicUrl(path)
     const url = data.publicUrl
-    await supabase.from('profiles').update({ company_logo_url: url }).eq('id', clientId)
+    const { error: dbError } = await supabase.from('profiles').update({ company_logo_url: url }).eq('id', clientId)
+    if (dbError) {
+      alert(`Failed to save logo URL: ${dbError.message}`)
+      setLogoUploading(null)
+      return
+    }
     setClients(prev => prev.map(c => c.id === clientId ? { ...c, company_logo_url: url } : c))
     setLogoUploading(null)
   }
