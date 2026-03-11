@@ -31,6 +31,8 @@ export default function Loading() {
           <motion.div
             key={i}
             className="absolute"
+            originX={0.5}
+            originY={0.5}
             style={{
               width: p.size,
               height: p.size,
@@ -40,8 +42,6 @@ export default function Loading() {
               left: '50%',
               marginTop: -p.size / 2,
               marginLeft: -p.size / 2,
-              originX: 0.5,
-              originY: 0.5,
             }}
             animate={{
               rotate: [0, 360],

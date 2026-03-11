@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
+import { useTheme } from '@/contexts/ThemeContext'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -13,6 +14,10 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const supabase = createClient()
+  const { themeId } = useTheme()
+  const logoSrc = (themeId === 'frost' || themeId === 'stark')
+    ? '/northstar-logo-dark.png'
+    : '/northstar-logo-white.png'
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -53,7 +58,7 @@ export default function LoginPage() {
         <div className="flex flex-col items-center mb-8">
           <div className="w-11 h-11 mb-3.5 rounded-xl overflow-hidden">
             <Image
-              src="/northstar-logo-white.png"
+              src={logoSrc}
               alt="Northstar"
               width={44}
               height={44}

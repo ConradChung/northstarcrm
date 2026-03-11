@@ -16,10 +16,10 @@ export default async function DashboardPage() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
-        <div className="bg-[#111111] border border-[#222222] rounded-lg p-8 text-center">
-          <p className="text-white text-lg font-semibold mb-2">Profile not found</p>
-          <p className="text-gray-400">Please contact your administrator to set up your account.</p>
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--bg)' }}>
+        <div className="rounded-lg p-8 text-center" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+          <p className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Profile not found</p>
+          <p style={{ color: 'var(--text-secondary)' }}>Please contact your administrator to set up your account.</p>
         </div>
       </div>
     )

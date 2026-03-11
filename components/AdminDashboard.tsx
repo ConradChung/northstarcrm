@@ -283,7 +283,7 @@ export default function AdminDashboard() {
       return
     }
     const { data } = supabase.storage.from('logos').getPublicUrl(path)
-    const url = data.publicUrl
+    const url = `${data.publicUrl}?v=${Date.now()}`
     const { error: dbError } = await supabase.from('profiles').update({ company_logo_url: url }).eq('id', clientId)
     if (dbError) {
       alert(`Failed to save logo URL: ${dbError.message}`)
