@@ -114,10 +114,12 @@ function NavItem({
 function SidebarUserFooter({
   companyName,
   email,
+  logoUrl,
   onLogout,
 }: {
   companyName: string
   email: string
+  logoUrl?: string | null
   onLogout: () => void
 }) {
   const { open, animate } = useSidebar()
@@ -126,9 +128,19 @@ function SidebarUserFooter({
   return (
     <div className="border-t border-[var(--border)] pt-4 space-y-1">
       <div className="flex items-center gap-3 px-3 py-2">
-        <div className="w-7 h-7 rounded-full bg-[#2A2A2A] flex items-center justify-center shrink-0 text-[11px] text-[var(--text-primary)] font-medium">
-          {initial}
-        </div>
+        {logoUrl ? (
+          <Image
+            src={logoUrl}
+            alt={companyName || 'Logo'}
+            width={28}
+            height={28}
+            className="w-7 h-7 rounded-full object-cover shrink-0"
+          />
+        ) : (
+          <div className="w-7 h-7 rounded-full bg-[#2A2A2A] flex items-center justify-center shrink-0 text-[11px] text-[var(--text-primary)] font-medium">
+            {initial}
+          </div>
+        )}
         <motion.span
           animate={{
             display: animate ? (open ? 'inline-block' : 'none') : 'inline-block',
@@ -222,6 +234,7 @@ export default function ClientDashboard({
           <SidebarUserFooter
             companyName={profile.company_name}
             email={profile.email}
+            logoUrl={profile.company_logo_url}
             onLogout={handleLogout}
           />
         </SidebarBody>
