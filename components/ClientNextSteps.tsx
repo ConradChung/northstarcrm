@@ -296,14 +296,14 @@ export default function ClientNextSteps({ clientId, docusignUrl, onboardingStage
 
   if (loading) return (
     <div className="flex items-center justify-center h-full">
-      <p className="text-[13px] text-[#4A4A4A]">Loading canvas...</p>
+      <p className="text-[13px] text-[var(--text-placeholder)]">Loading canvas...</p>
     </div>
   )
 
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full overflow-hidden bg-[#0A0A0A]"
+      className="relative w-full h-full overflow-hidden bg-[var(--bg)]"
       style={{ cursor: 'grab' }}
       onMouseDown={onContainerMouseDown}
     >
@@ -315,7 +315,7 @@ export default function ClientNextSteps({ clientId, docusignUrl, onboardingStage
           { icon: <Maximize2 size={11} />, action: fitToView },
         ].map((btn, i) => (
           <button key={i} onMouseDown={e => e.stopPropagation()} onClick={btn.action}
-            className="w-7 h-7 bg-[#111111] border border-[#1E1E1E] rounded-lg flex items-center justify-center text-[#555] hover:text-white hover:border-[#3A3A3A] transition-colors">
+            className="w-7 h-7 bg-[var(--surface)] border border-[var(--border)] rounded-lg flex items-center justify-center text-[#555] hover:text-[var(--text-primary)] hover:border-[var(--border)] transition-colors">
             {btn.icon}
           </button>
         ))}

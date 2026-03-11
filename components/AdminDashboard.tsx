@@ -15,6 +15,7 @@ import {
   Wand2,
   Layers,
   Search,
+  Settings,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Sidebar, SidebarBody, useSidebar } from '@/components/ui/sidebar'
@@ -24,6 +25,7 @@ import ClientNextSteps from '@/components/ClientNextSteps'
 import CopywriterAgent from '@/components/CopywriterAgent'
 import ClayPromptGenerator from '@/components/ClayPromptGenerator'
 import MarketResearchAgent from '@/components/MarketResearchAgent'
+import AccountSettings from '@/components/AccountSettings'
 
 interface Client {
   id: string
@@ -42,8 +44,7 @@ interface Campaign {
   status: string
 }
 
-
-type Section = 'clients' | 'campaigns' | 'onboarding' | 'onboarding-data' | 'email-validator' | 'copywriter' | 'clay-prompts' | 'market-research'
+type Section = 'clients' | 'campaigns' | 'onboarding' | 'onboarding-data' | 'email-validator' | 'copywriter' | 'clay-prompts' | 'market-research' | 'settings'
 
 // ── Sidebar sub-components ──
 
@@ -63,7 +64,8 @@ function SidebarLogo() {
           display: animate ? (open ? 'inline-block' : 'none') : 'inline-block',
           opacity: animate ? (open ? 1 : 0) : 1,
         }}
-        className="text-[13px] font-semibold text-white whitespace-nowrap"
+        className="text-[13px] font-semibold whitespace-nowrap"
+        style={{ color: 'var(--text-primary)' }}
       >
         NorthStar
       </motion.span>
@@ -87,14 +89,15 @@ function NavItem({
     <button
       onClick={onClick}
       className={cn(
-        'relative flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left transition-colors',
-        active ? 'text-white' : 'text-[#5A5A5A] hover:text-[#A0A0A0]'
+        'relative flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left transition-colors'
       )}
+      style={{ color: active ? 'var(--text-primary)' : 'var(--text-secondary)' }}
     >
       {active && (
         <motion.div
           layoutId="admin-sidebar-active"
-          className="absolute inset-0 rounded-lg bg-white/5 border border-white/8"
+          className="absolute inset-0 rounded-lg"
+          style={{ background: 'var(--accent)15', border: '1px solid var(--accent)25' }}
           transition={{ type: 'spring', stiffness: 400, damping: 35 }}
         />
       )}
@@ -112,13 +115,38 @@ function NavItem({
   )
 }
 
-function SidebarAdminFooter({ onLogout }: { onLogout: () => void }) {
+function SidebarAdminFooter({ onLogout, onSettings, settingsActive }: { onLogout: () => void; onSettings: () => void; settingsActive: boolean }) {
   const { open, animate } = useSidebar()
   return (
-    <div className="border-t border-[#1E1E1E] pt-4">
+    <div className="space-y-0.5" style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
+      <button
+        onClick={onSettings}
+        className="relative flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left transition-colors"
+        style={{ color: settingsActive ? 'var(--text-primary)' : 'var(--text-secondary)' }}
+      >
+        {settingsActive && (
+          <motion.div
+            layoutId="admin-sidebar-active"
+            className="absolute inset-0 rounded-lg"
+            style={{ background: 'var(--accent)15', border: '1px solid var(--accent)25' }}
+            transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+          />
+        )}
+        <Settings size={18} className="relative shrink-0" />
+        <motion.span
+          animate={{
+            display: animate ? (open ? 'inline-block' : 'none') : 'inline-block',
+            opacity: animate ? (open ? 1 : 0) : 1,
+          }}
+          className="relative text-[13px] font-medium whitespace-nowrap"
+        >
+          Settings
+        </motion.span>
+      </button>
       <button
         onClick={onLogout}
-        className="flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left text-[#5A5A5A] hover:text-[#A0A0A0] transition-colors"
+        className="flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left transition-colors"
+        style={{ color: 'var(--text-secondary)' }}
       >
         <LogOut size={18} className="shrink-0" />
         <motion.span
@@ -135,9 +163,13 @@ function SidebarAdminFooter({ onLogout }: { onLogout: () => void }) {
   )
 }
 
-// ── Shared input style ──
-const inputCls = 'w-full px-3 py-2 bg-[#0F0F0F] border border-[#1E1E1E] rounded-lg text-[13px] text-white placeholder-[#4A4A4A] focus:outline-none focus:border-[#3A3A3A]'
-const btnPrimary = 'px-4 py-2 bg-white text-[#0A0A0A] text-[13px] font-medium rounded-lg hover:bg-[#E0E0E0] transition-colors'
+// ── Shared input / button styles ──
+const inputCls = 'w-full px-3 py-2 rounded-lg text-[13px] focus:outline-none'
+const inputStyle = {
+  background: 'var(--surface-raised)',
+  border: '1px solid var(--border)',
+  color: 'var(--text-primary)',
+}
 
 const STAGE_LABELS: Record<number, string> = {
   0: 'Pre-start', 1: 'Inbox Setup', 2: 'Questionnaire', 3: 'ICP Form', 4: 'Complete',
@@ -234,9 +266,6 @@ export default function AdminDashboard() {
       supabase.from('stage2_onboarding').select('*').eq('client_id', clientId).maybeSingle(),
       supabase.from('onboarding_forms').select('*').eq('client_id', clientId).maybeSingle(),
     ])
-    if (s1.error) console.error('stage1 error:', s1.error)
-    if (s2.error) console.error('stage2 error:', s2.error)
-    if (s3.error) console.error('stage3 error:', s3.error)
     setStageData({ stage1: s1.data, stage2: s2.data, stage3: s3.data })
   }
 
@@ -248,14 +277,22 @@ export default function AdminDashboard() {
     localStorage.setItem('ns_active_section', section)
   }
 
+  const isCanvasSection = activeSection === 'onboarding'
+
   return (
-    <div className="flex h-screen bg-[#0A0A0A] overflow-hidden p-3 gap-3">
+    <div className="flex h-screen overflow-hidden p-3 gap-3" style={{ background: 'var(--bg)' }}>
       <Sidebar animate={false}>
-        <SidebarBody className="!bg-[#111111] !border !border-[#1E1E1E] !w-[220px] !rounded-2xl !h-full justify-between gap-8">
+        <SidebarBody
+          className="!w-[220px] !rounded-2xl !h-full justify-between gap-8"
+          style={{
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+          } as React.CSSProperties}
+        >
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden gap-0.5">
             <SidebarLogo />
             <div className="mt-3 flex flex-col gap-0.5">
-              <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-[#3A3A3A]">Management</p>
+              <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Management</p>
               {([
                 { id: 'clients', label: 'Clients', icon: <Users size={18} /> },
                 { id: 'campaigns', label: 'Campaigns', icon: <Megaphone size={18} /> },
@@ -266,7 +303,7 @@ export default function AdminDashboard() {
                 <NavItem key={item.id} icon={item.icon} label={item.label}
                   active={activeSection === item.id} onClick={() => navigate(item.id)} />
               ))}
-              <p className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-[#3A3A3A]">AI Tools</p>
+              <p className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>AI Tools</p>
               {([
                 { id: 'copywriter', label: 'Copywriter', icon: <Wand2 size={18} /> },
                 { id: 'clay-prompts', label: 'Clay Prompts', icon: <Layers size={18} /> },
@@ -277,12 +314,19 @@ export default function AdminDashboard() {
               ))}
             </div>
           </div>
-          <SidebarAdminFooter onLogout={handleLogout} />
+          <SidebarAdminFooter
+            onLogout={handleLogout}
+            onSettings={() => navigate('settings')}
+            settingsActive={activeSection === 'settings'}
+          />
         </SidebarBody>
       </Sidebar>
 
       {/* Main content */}
-      <main className={`flex-1 bg-[#0A0A0A] rounded-2xl ${activeSection === 'onboarding' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+      <main
+        className={`flex-1 rounded-2xl ${isCanvasSection ? 'overflow-hidden' : 'overflow-y-auto'}`}
+        style={{ background: 'var(--bg)' }}
+      >
         <AnimatePresence mode="wait">
 
           {/* ── Clients ── */}
@@ -290,29 +334,34 @@ export default function AdminDashboard() {
             <motion.div key="clients" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
               className="max-w-3xl mx-auto px-6 py-8">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-base font-medium text-white">Clients</h2>
-                <button onClick={() => setShowCreateClient(v => !v)} className={btnPrimary}>
+                <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Clients</h2>
+                <button
+                  onClick={() => setShowCreateClient(v => !v)}
+                  className="px-4 py-2 text-[13px] font-medium rounded-lg transition-colors"
+                  style={{ background: 'var(--accent)', color: 'var(--accent-fg)' }}
+                >
                   Create Client
                 </button>
               </div>
 
               {showCreateClient && (
-                <form onSubmit={handleCreateClient} className="mb-5 p-5 border border-[#1E1E1E] rounded-xl space-y-3">
-                  <input name="email" type="email" placeholder="Email" required className={inputCls} />
-                  <input name="password" type="password" placeholder="Password" required className={inputCls} />
-                  <input name="company_name" type="text" placeholder="Company Name" required className={inputCls} />
-                  <button type="submit" className={`${btnPrimary} w-full`}>Create</button>
+                <form onSubmit={handleCreateClient} className="mb-5 p-5 rounded-xl space-y-3" style={{ border: '1px solid var(--border)' }}>
+                  <input name="email" type="email" placeholder="Email" required className={inputCls} style={inputStyle} />
+                  <input name="password" type="password" placeholder="Password" required className={inputCls} style={inputStyle} />
+                  <input name="company_name" type="text" placeholder="Company Name" required className={inputCls} style={inputStyle} />
+                  <button type="submit" className="w-full px-4 py-2 text-[13px] font-medium rounded-lg transition-colors"
+                    style={{ background: 'var(--accent)', color: 'var(--accent-fg)' }}>Create</button>
                 </form>
               )}
 
               <div className="space-y-2">
                 {clients.map(client => (
-                  <div key={client.id} className="border border-[#1E1E1E] rounded-xl p-4">
+                  <div key={client.id} className="rounded-xl p-4" style={{ border: '1px solid var(--border)' }}>
                     <div className="flex items-center justify-between cursor-pointer"
                       onClick={() => setSelectedClient(client.id === selectedClient ? null : client.id)}>
                       <div>
-                        <p className="text-[13px] font-medium text-white">{client.company_name || 'Unnamed'}</p>
-                        <p className="text-[12px] text-[#5A5A5A] mt-0.5">{client.email}</p>
+                        <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>{client.company_name || 'Unnamed'}</p>
+                        <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>{client.email}</p>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className={`text-[11px] px-2 py-0.5 rounded-full border ${
@@ -320,11 +369,13 @@ export default function AdminDashboard() {
                             ? 'border-[#2ECC71]/30 text-[#2ECC71] bg-[#2ECC71]/5'
                             : client.onboarding_stage > 0
                             ? 'border-[#5E6AD2]/30 text-[#5E6AD2] bg-[#5E6AD2]/5'
-                            : 'border-[#2A2A2A] text-[#4A4A4A]'
-                        }`}>
+                            : ''
+                        }`}
+                          style={client.onboarding_stage === 0 ? { border: '1px solid var(--border)', color: 'var(--text-placeholder)' } : {}}
+                        >
                           {STAGE_LABELS[client.onboarding_stage] || 'Pre-start'}
                         </span>
-                        <span className="text-[11px] text-[#4A4A4A]">
+                        <span className="text-[11px]" style={{ color: 'var(--text-placeholder)' }}>
                           {new Date(client.created_at).toLocaleDateString()}
                         </span>
                       </div>
@@ -338,33 +389,32 @@ export default function AdminDashboard() {
                           onBlur={e => saveDocuSignUrl(client.id, e.target.value)}
                           onKeyDown={e => e.key === 'Enter' && saveDocuSignUrl(client.id, docuSignInputs[client.id] ?? '')}
                           placeholder="DocuSign URL (paste link to save)"
-                          className="flex-1 px-2.5 py-1.5 bg-[#0A0A0A] border border-[#1E1E1E] rounded-lg text-[12px] text-white placeholder-[#3A3A3A] focus:outline-none focus:border-[#3A3A3A]"
+                          className="flex-1 px-2.5 py-1.5 rounded-lg text-[12px] focus:outline-none"
+                          style={{ background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
                         />
                         {(docuSignInputs[client.id] ?? client.docusign_url) && (
                           <span className="text-[11px] text-[#2ECC71] flex items-center">✓</span>
                         )}
                       </div>
                       {/* Stage progress bar */}
-                      <div className="space-y-1.5">
-                        <div className="flex gap-1">
-                          {STAGE_STEPS.map((label, i) => {
-                            const stageNum = i + 1
-                            const done = client.onboarding_stage > stageNum
-                            const active = client.onboarding_stage === stageNum
-                            return (
-                              <div key={label} className="flex-1 space-y-1">
-                                <div className={`h-1 rounded-full ${
-                                  done || client.onboarding_stage >= 4
-                                    ? 'bg-[#2ECC71]'
-                                    : active
-                                    ? 'bg-[#5E6AD2]'
-                                    : 'bg-[#1E1E1E]'
-                                }`} />
-                                <p className="text-[10px] text-[#3A3A3A] truncate">{label}</p>
-                              </div>
-                            )
-                          })}
-                        </div>
+                      <div className="flex gap-1">
+                        {STAGE_STEPS.map((label, i) => {
+                          const stageNum = i + 1
+                          const done = client.onboarding_stage > stageNum
+                          const active = client.onboarding_stage === stageNum
+                          return (
+                            <div key={label} className="flex-1 space-y-1">
+                              <div className="h-1 rounded-full" style={{
+                                background: done || client.onboarding_stage >= 4
+                                  ? '#2ECC71'
+                                  : active
+                                  ? '#5E6AD2'
+                                  : 'var(--border)',
+                              }} />
+                              <p className="text-[10px] truncate" style={{ color: 'var(--text-tertiary)' }}>{label}</p>
+                            </div>
+                          )
+                        })}
                       </div>
                     </div>
                   </div>
@@ -378,21 +428,24 @@ export default function AdminDashboard() {
             <motion.div key="campaigns" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
               className="max-w-3xl mx-auto px-6 py-8">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-base font-medium text-white">Campaigns</h2>
-                <button onClick={() => setShowAddCampaign(v => !v)} className={btnPrimary}>
+                <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Campaigns</h2>
+                <button onClick={() => setShowAddCampaign(v => !v)}
+                  className="px-4 py-2 text-[13px] font-medium rounded-lg transition-colors"
+                  style={{ background: 'var(--accent)', color: 'var(--accent-fg)' }}>
                   Add Campaign
                 </button>
               </div>
 
               {showAddCampaign && (
-                <form onSubmit={handleAddCampaign} className="mb-5 p-5 border border-[#1E1E1E] rounded-xl space-y-3">
-                  <select name="client_id" required className={inputCls}>
+                <form onSubmit={handleAddCampaign} className="mb-5 p-5 rounded-xl space-y-3" style={{ border: '1px solid var(--border)' }}>
+                  <select name="client_id" required className={inputCls} style={inputStyle}>
                     <option value="">Select Client</option>
                     {clients.map(c => <option key={c.id} value={c.id}>{c.company_name || c.email}</option>)}
                   </select>
-                  <input name="campaign_name" type="text" placeholder="Campaign Name" required className={inputCls} />
-                  <input name="instantly_campaign_id" type="text" placeholder="Instantly Campaign ID" required className={inputCls} />
-                  <button type="submit" className={`${btnPrimary} w-full`}>Add Campaign</button>
+                  <input name="campaign_name" type="text" placeholder="Campaign Name" required className={inputCls} style={inputStyle} />
+                  <input name="instantly_campaign_id" type="text" placeholder="Instantly Campaign ID" required className={inputCls} style={inputStyle} />
+                  <button type="submit" className="w-full px-4 py-2 text-[13px] font-medium rounded-lg transition-colors"
+                    style={{ background: 'var(--accent)', color: 'var(--accent-fg)' }}>Add Campaign</button>
                 </form>
               )}
 
@@ -401,15 +454,19 @@ export default function AdminDashboard() {
                   const client = clients.find(c => c.id === campaign.client_id)
                   return (
                     <div key={campaign.id} onClick={() => setSelectedCampaign(campaign)}
-                      className="px-4 py-3 rounded-lg cursor-pointer hover:bg-[#111111] transition-colors group">
+                      className="px-4 py-3 rounded-lg cursor-pointer transition-colors group"
+                      style={{ ['--hover-bg' as string]: 'var(--surface)' }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    >
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-[13px] text-white">{campaign.campaign_name}</p>
-                          <p className="text-[12px] text-[#5A5A5A] mt-0.5">
+                          <p className="text-[13px]" style={{ color: 'var(--text-primary)' }}>{campaign.campaign_name}</p>
+                          <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>
                             {client?.company_name || 'Unknown'} · {campaign.instantly_campaign_id}
                           </p>
                         </div>
-                        <span className="text-[11px] text-[#4A4A4A]">{campaign.status}</span>
+                        <span className="text-[11px]" style={{ color: 'var(--text-placeholder)' }}>{campaign.status}</span>
                       </div>
                     </div>
                   )
@@ -433,19 +490,18 @@ export default function AdminDashboard() {
           {activeSection === 'onboarding' && (
             <motion.div key="onboarding" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
               className="w-full h-full flex flex-col">
-              <div className="px-6 py-4 border-b border-[#1A1A1A] flex items-center gap-4 shrink-0">
-                <h2 className="text-base font-medium text-white">Client Next Steps</h2>
+              <div className="px-6 py-4 flex items-center gap-4 shrink-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                <h2 className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>Client Next Steps</h2>
                 <select
                   value={checklistClientId}
                   onChange={e => setChecklistClientId(e.target.value)}
                   className={inputCls}
-                  style={{ maxWidth: 280 }}
+                  style={{ ...inputStyle, maxWidth: 280 }}
                 >
                   <option value="">Select a client</option>
                   {clients.map(c => <option key={c.id} value={c.id}>{c.company_name || c.email}</option>)}
                 </select>
               </div>
-
               <div className="flex-1 overflow-hidden">
                 {checklistClientId && (() => {
                   const client = clients.find(c => c.id === checklistClientId)
@@ -460,7 +516,7 @@ export default function AdminDashboard() {
                   )
                 })()}
                 {!checklistClientId && (
-                  <div className="flex items-center justify-center h-full text-[13px] text-[#3A3A3A]">
+                  <div className="flex items-center justify-center h-full text-[13px]" style={{ color: 'var(--text-tertiary)' }}>
                     Select a client to view their canvas
                   </div>
                 )}
@@ -473,12 +529,12 @@ export default function AdminDashboard() {
             <motion.div key="onboarding-data" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
               className="max-w-3xl mx-auto px-6 py-8">
               <div className="mb-6">
-                <h2 className="text-base font-medium text-white mb-4">Onboarding Data</h2>
+                <h2 className="text-base font-medium mb-4" style={{ color: 'var(--text-primary)' }}>Onboarding Data</h2>
                 <select
                   value={onboardingDataClientId}
                   onChange={e => { setOnboardingDataClientId(e.target.value); if (e.target.value) loadStageData(e.target.value) }}
                   className={inputCls}
-                  style={{ maxWidth: 280 }}
+                  style={{ ...inputStyle, maxWidth: 280 }}
                 >
                   <option value="">Select a client</option>
                   {clients.map(c => <option key={c.id} value={c.id}>{c.company_name || c.email}</option>)}
@@ -487,92 +543,77 @@ export default function AdminDashboard() {
 
               {onboardingDataClientId && (
                 <div className="space-y-4">
-                  {/* Stage 1 */}
-                  <div className="border border-[#1E1E1E] rounded-xl p-5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5A5A5A] mb-4">Stage 1 — Inbox Setup</p>
-                    {stageData.stage1 ? (
-                      <div className="space-y-3">
-                        {!!stageData.stage1.profile_picture_url && (
-                          <div className="flex items-center gap-3">
-                            <img src={String(stageData.stage1.profile_picture_url)} alt="Profile" className="w-10 h-10 rounded-full object-cover" />
-                            <p className="text-[12px] text-[#5A5A5A]">Profile photo</p>
-                          </div>
-                        )}
-                        {!!stageData.stage1.selected_domain && (
-                          <div>
-                            <p className="text-[11px] text-[#4A4A4A] mb-0.5">Selected domain</p>
-                            <p className="text-[13px] text-white">{String(stageData.stage1.selected_domain)}</p>
-                          </div>
-                        )}
-                      </div>
-                    ) : <p className="text-[13px] text-[#4A4A4A]">Not completed yet</p>}
-                  </div>
-
-                  {/* Stage 2 */}
-                  <div className="border border-[#1E1E1E] rounded-xl p-5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5A5A5A] mb-4">Stage 2 — Dream Client Questionnaire</p>
-                    {stageData.stage2 ? (
-                      <div className="space-y-3">
-                        {([
-                          ['Best client', 'best_client_description'],
-                          ['Biggest problem', 'biggest_problem'],
-                          ['Why said yes', 'why_said_yes'],
-                          ['Result delivered', 'result_delivered'],
-                          ['Red flags', 'red_flags'],
-                          ['Clone client', 'clone_client'],
-                        ] as [string, string][]).map(([label, key]) => !!stageData.stage2![key] && (
-                          <div key={key}>
-                            <p className="text-[11px] text-[#4A4A4A] mb-0.5">{label}</p>
-                            <p className="text-[13px] text-white">{String(stageData.stage2![key])}</p>
-                          </div>
-                        ))}
-                      </div>
-                    ) : <p className="text-[13px] text-[#4A4A4A]">Not completed yet</p>}
-                  </div>
-
-                  {/* Stage 3 */}
-                  <div className="border border-[#1E1E1E] rounded-xl p-5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5A5A5A] mb-4">Stage 3 — ICP & Targeting</p>
-                    {stageData.stage3 ? (
-                      <div className="space-y-3">
-                        {([
-                          ['Industries', 'industries'],
-                          ['Company size', 'company_size'],
-                          ['Revenue ranges', 'revenue_ranges'],
-                          ['Locations', 'locations'],
-                          ['Job titles (include)', 'job_titles_include'],
-                          ['Job titles (exclude)', 'job_titles_exclude'],
-                          ['Keywords (include)', 'keywords_include'],
-                          ['Keywords (exclude)', 'keywords_exclude'],
-                        ] as [string, string][]).map(([label, key]) => {
-                          const val = stageData.stage3![key]
-                          if (!val || (Array.isArray(val) && val.length === 0)) return null
-                          return (
-                            <div key={key}>
-                              <p className="text-[11px] text-[#4A4A4A] mb-1">{label}</p>
-                              <div className="flex flex-wrap gap-1">
-                                {(Array.isArray(val) ? val as string[] : [String(val)]).map(v => (
-                                  <span key={v} className="px-2 py-0.5 bg-[#1A1A1A] text-[#A0A0A0] text-[11px] rounded-full border border-[#2A2A2A]">{v}</span>
-                                ))}
-                              </div>
-                            </div>
-                          )
-                        })}
-                        {([
-                          ['CTA type', 'cta_type'],
-                          ['Deal size', 'deal_size_range'],
-                          ['Offer description', 'offer_description'],
-                          ['Best customer', 'best_customer_description'],
-                          ['Calendly link', 'calendly_link'],
-                        ] as [string, string][]).map(([label, key]) => !!stageData.stage3![key] && (
-                          <div key={key}>
-                            <p className="text-[11px] text-[#4A4A4A] mb-0.5">{label}</p>
-                            <p className="text-[13px] text-white">{String(stageData.stage3![key])}</p>
-                          </div>
-                        ))}
-                      </div>
-                    ) : <p className="text-[13px] text-[#4A4A4A]">Not completed yet</p>}
-                  </div>
+                  {[
+                    { label: 'Stage 1 — Inbox Setup', data: stageData.stage1, fields: null as null },
+                    { label: 'Stage 2 — Dream Client Questionnaire', data: stageData.stage2, fields: null },
+                    { label: 'Stage 3 — ICP & Targeting', data: stageData.stage3, fields: null },
+                  ].map(({ label, data }, idx) => (
+                    <div key={idx} className="rounded-xl p-5" style={{ border: '1px solid var(--border)' }}>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--text-secondary)' }}>{label}</p>
+                      {data ? (
+                        <div className="space-y-3">
+                          {idx === 0 && (
+                            <>
+                              {!!stageData.stage1?.profile_picture_url && (
+                                <div className="flex items-center gap-3">
+                                  <img src={String(stageData.stage1.profile_picture_url)} alt="Profile" className="w-10 h-10 rounded-full object-cover" />
+                                  <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>Profile photo</p>
+                                </div>
+                              )}
+                              {!!stageData.stage1?.selected_domain && (
+                                <div>
+                                  <p className="text-[11px] mb-0.5" style={{ color: 'var(--text-placeholder)' }}>Selected domain</p>
+                                  <p className="text-[13px]" style={{ color: 'var(--text-primary)' }}>{String(stageData.stage1.selected_domain)}</p>
+                                </div>
+                              )}
+                            </>
+                          )}
+                          {idx === 1 && (
+                            <>
+                              {(['best_client_description','biggest_problem','why_said_yes','result_delivered','red_flags','clone_client'] as const).map(key => {
+                                const labels: Record<string, string> = { best_client_description: 'Best client', biggest_problem: 'Biggest problem', why_said_yes: 'Why said yes', result_delivered: 'Result delivered', red_flags: 'Red flags', clone_client: 'Clone client' }
+                                return !!stageData.stage2?.[key] && (
+                                  <div key={key}>
+                                    <p className="text-[11px] mb-0.5" style={{ color: 'var(--text-placeholder)' }}>{labels[key]}</p>
+                                    <p className="text-[13px]" style={{ color: 'var(--text-primary)' }}>{String(stageData.stage2[key])}</p>
+                                  </div>
+                                )
+                              })}
+                            </>
+                          )}
+                          {idx === 2 && (
+                            <>
+                              {(['industries','company_size','revenue_ranges','locations','job_titles_include','job_titles_exclude','keywords_include','keywords_exclude'] as const).map(key => {
+                                const labels: Record<string, string> = { industries: 'Industries', company_size: 'Company size', revenue_ranges: 'Revenue ranges', locations: 'Locations', job_titles_include: 'Job titles (include)', job_titles_exclude: 'Job titles (exclude)', keywords_include: 'Keywords (include)', keywords_exclude: 'Keywords (exclude)' }
+                                const val = stageData.stage3?.[key]
+                                if (!val || (Array.isArray(val) && val.length === 0)) return null
+                                return (
+                                  <div key={key}>
+                                    <p className="text-[11px] mb-1" style={{ color: 'var(--text-placeholder)' }}>{labels[key]}</p>
+                                    <div className="flex flex-wrap gap-1">
+                                      {(Array.isArray(val) ? val as string[] : [String(val)]).map(v => (
+                                        <span key={v} className="px-2 py-0.5 text-[11px] rounded-full"
+                                          style={{ background: 'var(--surface-raised)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>{v}</span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                              {(['cta_type','deal_size_range','offer_description','best_customer_description','calendly_link'] as const).map(key => {
+                                const labels: Record<string, string> = { cta_type: 'CTA type', deal_size_range: 'Deal size', offer_description: 'Offer description', best_customer_description: 'Best customer', calendly_link: 'Calendly link' }
+                                return !!stageData.stage3?.[key] && (
+                                  <div key={key}>
+                                    <p className="text-[11px] mb-0.5" style={{ color: 'var(--text-placeholder)' }}>{labels[key]}</p>
+                                    <p className="text-[13px]" style={{ color: 'var(--text-primary)' }}>{String(stageData.stage3[key])}</p>
+                                  </div>
+                                )
+                              })}
+                            </>
+                          )}
+                        </div>
+                      ) : <p className="text-[13px]" style={{ color: 'var(--text-placeholder)' }}>Not completed yet</p>}
+                    </div>
+                  ))}
                 </div>
               )}
             </motion.div>
@@ -602,6 +643,13 @@ export default function AdminDashboard() {
             </motion.div>
           )}
 
+          {/* ── Settings ── */}
+          {activeSection === 'settings' && (
+            <motion.div key="settings" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+              <AccountSettings />
+            </motion.div>
+          )}
+
         </AnimatePresence>
 
         {/* ── Email Validator (always mounted so validation never drops) ── */}
@@ -621,15 +669,15 @@ export default function AdminDashboard() {
       {validatorStatus && activeSection !== 'email-validator' && (
         <button
           onClick={() => setActiveSection('email-validator')}
-          className="fixed bottom-5 right-5 z-50 flex items-center gap-3 px-4 py-3 bg-[#111111] border border-[#2A2A2A] rounded-xl shadow-xl hover:border-[#3A3A3A] transition-colors"
-          style={{ minWidth: 260 }}
+          className="fixed bottom-5 right-5 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl transition-colors"
+          style={{ background: 'var(--surface)', border: '1px solid var(--border)', minWidth: 260 }}
         >
           <span className="w-2 h-2 rounded-full bg-[#5E6AD2] animate-pulse shrink-0" />
           <div className="flex-1 min-w-0 text-left">
-            <p className="text-[12px] text-white font-medium leading-none mb-1.5">
+            <p className="text-[12px] font-medium leading-none mb-1.5" style={{ color: 'var(--text-primary)' }}>
               Email Validator running
             </p>
-            <div className="h-1 bg-[#1E1E1E] rounded-full overflow-hidden">
+            <div className="h-1 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
               <div
                 className="h-full bg-[#5E6AD2] rounded-full transition-all duration-300"
                 style={{
@@ -640,7 +688,7 @@ export default function AdminDashboard() {
               />
             </div>
             {validatorStatus.total > 0 && (
-              <p className="text-[11px] text-[#5A5A5A] mt-1 leading-none tabular-nums">
+              <p className="text-[11px] mt-1 leading-none tabular-nums" style={{ color: 'var(--text-secondary)' }}>
                 {validatorStatus.processed} / {validatorStatus.total}
               </p>
             )}

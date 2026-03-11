@@ -92,16 +92,16 @@ export default function CampaignAnalytics({ campaignId, campaignName, onBack }: 
         {onBack && (
           <button
             onClick={onBack}
-            className="text-[#6B6B6B] hover:text-white transition-colors text-sm"
+            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors text-sm"
           >
             ← Back
           </button>
         )}
-        <h2 className="text-base font-medium text-white">{campaignName}</h2>
+        <h2 className="text-base font-medium text-[var(--text-primary)]">{campaignName}</h2>
       </div>
 
       {loading && (
-        <div className="text-[#6B6B6B] text-sm py-12 text-center">Loading analytics…</div>
+        <div className="text-[var(--text-secondary)] text-sm py-12 text-center">Loading analytics…</div>
       )}
 
       {error && (
@@ -115,11 +115,11 @@ export default function CampaignAnalytics({ campaignId, campaignName, onBack }: 
           {/* Stat Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {stats.map(stat => (
-              <div key={stat.label} className="bg-[#0F0F0F] border border-[#1E1E1E] rounded px-4 py-3">
-                <p className="text-[#6B6B6B] text-[11px] font-medium uppercase tracking-wider">
+              <div key={stat.label} className="rounded px-4 py-3" style={{background:'var(--surface-raised)',border:'1px solid var(--border))'}}>
+                <p className="text-[var(--text-secondary)] text-[11px] font-medium uppercase tracking-wider">
                   {stat.label}
                 </p>
-                <p className="text-xl font-semibold text-white mt-0.5">{stat.value}</p>
+                <p className="text-xl font-semibold text-[var(--text-primary)] mt-0.5">{stat.value}</p>
               </div>
             ))}
           </div>
@@ -128,8 +128,8 @@ export default function CampaignAnalytics({ campaignId, campaignName, onBack }: 
           {chartData.length > 0 && (
             <div className="grid grid-cols-1 gap-4">
               {/* Emails Sent Chart */}
-              <div className="bg-[#0F0F0F] border border-[#1E1E1E] rounded px-5 pt-5 pb-2">
-                <p className="text-[#6B6B6B] text-[11px] font-medium uppercase tracking-wider mb-5">
+              <div className="bg-[var(--surface-raised)] border border-[var(--border)] rounded px-5 pt-5 pb-2">
+                <p className="text-[var(--text-secondary)] text-[11px] font-medium uppercase tracking-wider mb-5">
                   Emails Sent
                 </p>
                 <ResponsiveContainer width="100%" height={220}>
@@ -140,17 +140,17 @@ export default function CampaignAnalytics({ campaignId, campaignName, onBack }: 
                         <stop offset="100%" stopColor="#5E6AD2" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid stroke="#1A1A1A" strokeDasharray="none" vertical={false} />
+                    <CartesianGrid stroke="var(--border-subtle)" strokeDasharray="none" vertical={false} />
                     <XAxis
                       dataKey="date"
-                      stroke="#3A3A3A"
+                      stroke="var(--text-tertiary)"
                       fontSize={11}
                       tickLine={false}
                       axisLine={false}
                       dy={8}
                     />
                     <YAxis
-                      stroke="#3A3A3A"
+                      stroke="var(--text-tertiary)"
                       fontSize={11}
                       tickLine={false}
                       axisLine={false}
@@ -158,14 +158,14 @@ export default function CampaignAnalytics({ campaignId, campaignName, onBack }: 
                     />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: '#1A1A1A',
-                        border: '1px solid #2A2A2A',
+                        backgroundColor: 'var(--surface-raised)',
+                        border: '1px solid var(--border)',
                         borderRadius: '4px',
                         fontSize: '12px',
                       }}
-                      labelStyle={{ color: '#8A8A8A', marginBottom: '4px' }}
-                      itemStyle={{ color: '#D0D0D0', padding: '1px 0' }}
-                      cursor={{ stroke: '#2A2A2A' }}
+                      labelStyle={{ color: 'var(--text-secondary)', marginBottom: '4px' }}
+                      itemStyle={{ color: 'var(--text-primary)', padding: '1px 0' }}
+                      cursor={{ stroke: 'var(--border)' }}
                     />
                     <Area
                       type="monotone"
@@ -180,8 +180,8 @@ export default function CampaignAnalytics({ campaignId, campaignName, onBack }: 
               </div>
 
               {/* Replies Chart */}
-              <div className="bg-[#0F0F0F] border border-[#1E1E1E] rounded px-5 pt-5 pb-2">
-                <p className="text-[#6B6B6B] text-[11px] font-medium uppercase tracking-wider mb-5">
+              <div className="bg-[var(--surface-raised)] border border-[var(--border)] rounded px-5 pt-5 pb-2">
+                <p className="text-[var(--text-secondary)] text-[11px] font-medium uppercase tracking-wider mb-5">
                   Replies
                 </p>
                 <ResponsiveContainer width="100%" height={220}>
@@ -192,17 +192,17 @@ export default function CampaignAnalytics({ campaignId, campaignName, onBack }: 
                         <stop offset="100%" stopColor="#26B5CE" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid stroke="#1A1A1A" strokeDasharray="none" vertical={false} />
+                    <CartesianGrid stroke="var(--border-subtle)" strokeDasharray="none" vertical={false} />
                     <XAxis
                       dataKey="date"
-                      stroke="#3A3A3A"
+                      stroke="var(--text-tertiary)"
                       fontSize={11}
                       tickLine={false}
                       axisLine={false}
                       dy={8}
                     />
                     <YAxis
-                      stroke="#3A3A3A"
+                      stroke="var(--text-tertiary)"
                       fontSize={11}
                       tickLine={false}
                       axisLine={false}
@@ -211,14 +211,14 @@ export default function CampaignAnalytics({ campaignId, campaignName, onBack }: 
                     />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: '#1A1A1A',
-                        border: '1px solid #2A2A2A',
+                        backgroundColor: 'var(--surface-raised)',
+                        border: '1px solid var(--border)',
                         borderRadius: '4px',
                         fontSize: '12px',
                       }}
-                      labelStyle={{ color: '#8A8A8A', marginBottom: '4px' }}
-                      itemStyle={{ color: '#D0D0D0', padding: '1px 0' }}
-                      cursor={{ stroke: '#2A2A2A' }}
+                      labelStyle={{ color: 'var(--text-secondary)', marginBottom: '4px' }}
+                      itemStyle={{ color: 'var(--text-primary)', padding: '1px 0' }}
+                      cursor={{ stroke: 'var(--border)' }}
                     />
                     <Area
                       type="monotone"
@@ -235,21 +235,21 @@ export default function CampaignAnalytics({ campaignId, campaignName, onBack }: 
           )}
 
           {chartData.length === 0 && (
-            <div className="text-[#4A4A4A] text-sm py-8 text-center">
+            <div className="text-[var(--text-placeholder)] text-sm py-8 text-center">
               No daily analytics data available yet.
             </div>
           )}
 
           {/* Step Analytics */}
           {steps.length > 0 && (
-            <div className="bg-[#0F0F0F] border border-[#1E1E1E] rounded">
+            <div className="bg-[var(--surface-raised)] border border-[var(--border)] rounded">
               <div className="px-5 pt-5 pb-3">
-                <p className="text-[#6B6B6B] text-[11px] font-medium uppercase tracking-wider">
+                <p className="text-[var(--text-secondary)] text-[11px] font-medium uppercase tracking-wider">
                   Step Analytics
                 </p>
               </div>
               <div className="overflow-x-auto">
-                <div className="grid grid-cols-[1fr_80px_80px_100px_80px_80px] gap-0 px-5 pb-2 text-[11px] text-[#4A4A4A] uppercase tracking-wider font-medium">
+                <div className="grid grid-cols-[1fr_80px_80px_100px_80px_80px] gap-0 px-5 pb-2 text-[11px] text-[var(--text-placeholder)] uppercase tracking-wider font-medium">
                   <span>Step</span>
                   <span className="text-right">Sent</span>
                   <span className="text-right">Opened</span>
@@ -263,8 +263,8 @@ export default function CampaignAnalytics({ campaignId, campaignName, onBack }: 
                   return (
                     <div
                       key={i}
-                      className={`grid grid-cols-[1fr_80px_80px_100px_80px_80px] gap-0 px-5 py-2.5 border-t border-[#1E1E1E] text-[13px] ${
-                        isVariant ? 'text-[#6B6B6B]' : 'text-white'
+                      className={`grid grid-cols-[1fr_80px_80px_100px_80px_80px] gap-0 px-5 py-2.5 border-t border-[var(--border)] text-[13px] ${
+                        isVariant ? 'text-[var(--text-secondary)]' : 'text-[var(--text-primary)]'
                       }`}
                     >
                       <span className={isVariant ? 'pl-5' : 'font-medium'}>
@@ -274,7 +274,7 @@ export default function CampaignAnalytics({ campaignId, campaignName, onBack }: 
                       <span className="text-right">{s.opened}</span>
                       <span className="text-right">
                         {s.replied}
-                        <span className="text-[#4A4A4A] ml-1.5">{replyPct}%</span>
+                        <span className="text-[var(--text-placeholder)] ml-1.5">{replyPct}%</span>
                       </span>
                       <span className="text-right">{s.clicked}</span>
                       <span className="text-right">{s.opportunities}</span>

@@ -107,10 +107,10 @@ export default function ClientAttachments({ clientId }: { clientId: string }) {
   const count = attachments.length
 
   return (
-    <div className="mt-3 pt-3 border-t border-[#1A1A1A]" onClick={e => e.stopPropagation()}>
+    <div className="mt-3 pt-3 border-t border-[var(--border-subtle)]" onClick={e => e.stopPropagation()}>
       <button
         onClick={() => setExpanded(v => !v)}
-        className="flex items-center gap-2 text-[12px] text-[#5A5A5A] hover:text-[#A0A0A0] transition-colors w-full"
+        className="flex items-center gap-2 text-[12px] text-[var(--text-secondary)] hover:text-[var(--text-secondary)] transition-colors w-full"
       >
         <Paperclip size={12} />
         <span>Attachments{count > 0 ? ` · ${count}` : ''}</span>
@@ -128,11 +128,11 @@ export default function ClientAttachments({ clientId }: { clientId: string }) {
             className={`flex flex-col items-center gap-1.5 py-4 rounded-lg border border-dashed cursor-pointer transition-colors ${
               dragOver
                 ? 'border-[#5E6AD2] bg-[#5E6AD2]/5'
-                : 'border-[#2A2A2A] hover:border-[#3A3A3A] bg-[#0A0A0A]'
+                : 'border-[var(--border)] hover:border-[var(--border)] bg-[var(--bg)]'
             }`}
           >
-            <Upload size={14} className={dragOver ? 'text-[#5E6AD2]' : 'text-[#4A4A4A]'} />
-            <p className="text-[11px] text-[#4A4A4A]">
+            <Upload size={14} className={dragOver ? 'text-[#5E6AD2]' : 'text-[var(--text-placeholder)]'} />
+            <p className="text-[11px] text-[var(--text-placeholder)]">
               {uploading ? 'Uploading...' : 'Drop files or click to upload'}
             </p>
             <input
@@ -155,11 +155,11 @@ export default function ClientAttachments({ clientId }: { clientId: string }) {
                   onKeyDown={e => e.key === 'Enter' && addLink()}
                   placeholder="https://..."
                   autoFocus
-                  className="flex-1 px-2.5 py-1.5 bg-[#0A0A0A] border border-[#1E1E1E] rounded-lg text-[12px] text-white placeholder-[#3A3A3A] focus:outline-none focus:border-[#3A3A3A]"
+                  className="flex-1 px-2.5 py-1.5 bg-[var(--bg)] border border-[var(--border)] rounded-lg text-[12px] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-[var(--border)]"
                 />
                 <button
                   onClick={() => { setShowLinkForm(false); setLinkUrl(''); setLinkName('') }}
-                  className="text-[#4A4A4A] hover:text-white p-1"
+                  className="text-[var(--text-placeholder)] hover:text-[var(--text-primary)] p-1"
                 >
                   <X size={12} />
                 </button>
@@ -170,7 +170,7 @@ export default function ClientAttachments({ clientId }: { clientId: string }) {
                 onChange={e => setLinkName(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && addLink()}
                 placeholder="Label (optional)"
-                className="w-full px-2.5 py-1.5 bg-[#0A0A0A] border border-[#1E1E1E] rounded-lg text-[12px] text-white placeholder-[#3A3A3A] focus:outline-none focus:border-[#3A3A3A]"
+                className="w-full px-2.5 py-1.5 bg-[var(--bg)] border border-[var(--border)] rounded-lg text-[12px] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-[var(--border)]"
               />
               <button
                 onClick={addLink}
@@ -183,7 +183,7 @@ export default function ClientAttachments({ clientId }: { clientId: string }) {
           ) : (
             <button
               onClick={() => setShowLinkForm(true)}
-              className="flex items-center gap-1.5 text-[11px] text-[#5A5A5A] hover:text-[#A0A0A0] transition-colors"
+              className="flex items-center gap-1.5 text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-secondary)] transition-colors"
             >
               <Plus size={11} />
               Add link
@@ -194,21 +194,21 @@ export default function ClientAttachments({ clientId }: { clientId: string }) {
           {attachments.length > 0 ? (
             <div className="space-y-0.5">
               {attachments.map(a => (
-                <div key={a.id} className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-[#111111] group">
+                <div key={a.id} className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-[var(--surface)] group">
                   {a.type === 'link'
                     ? <Link2 size={12} className="text-[#5E6AD2] shrink-0" />
-                    : <FileText size={12} className="text-[#5A5A5A] shrink-0" />}
+                    : <FileText size={12} className="text-[var(--text-secondary)] shrink-0" />}
                   <div className="flex-1 min-w-0">
-                    <p className="text-[12px] text-white truncate">{a.name}</p>
+                    <p className="text-[12px] text-[var(--text-primary)] truncate">{a.name}</p>
                     {a.file_size != null && (
-                      <p className="text-[10px] text-[#4A4A4A]">{formatSize(a.file_size)}</p>
+                      <p className="text-[10px] text-[var(--text-placeholder)]">{formatSize(a.file_size)}</p>
                     )}
                   </div>
                   <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                    <a href={a.url} target="_blank" rel="noopener noreferrer" className="text-[#5A5A5A] hover:text-white">
+                    <a href={a.url} target="_blank" rel="noopener noreferrer" className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
                       <ExternalLink size={12} />
                     </a>
-                    <button onClick={() => deleteAttachment(a)} className="text-[#5A5A5A] hover:text-red-400">
+                    <button onClick={() => deleteAttachment(a)} className="text-[var(--text-secondary)] hover:text-red-400">
                       <Trash2 size={12} />
                     </button>
                   </div>
@@ -216,7 +216,7 @@ export default function ClientAttachments({ clientId }: { clientId: string }) {
               ))}
             </div>
           ) : !uploading && (
-            <p className="text-[11px] text-[#3A3A3A] px-1">No attachments yet</p>
+            <p className="text-[11px] text-[var(--text-tertiary)] px-1">No attachments yet</p>
           )}
         </div>
       )}

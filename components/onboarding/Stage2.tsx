@@ -68,8 +68,8 @@ export default function Stage2({ onComplete }: Props) {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-lg font-medium text-white mb-1">Your Best Clients</h2>
-        <p className="text-[13px] text-[#6B6B6B]">
+        <h2 className="text-lg font-medium text-[var(--text-primary)] mb-1">Your Best Clients</h2>
+        <p className="text-[13px] text-[var(--text-secondary)]">
           Help us understand who you serve best. Short answers are perfect.
         </p>
       </div>
@@ -81,8 +81,8 @@ export default function Stage2({ onComplete }: Props) {
       <div className="space-y-5">
         {QUESTIONS.map((q, i) => (
           <div key={q.key}>
-            <label className="block text-[13px] text-[#A0A0A0] mb-1.5">
-              <span className="text-[#4A4A4A] mr-2">{i + 1}.</span>
+            <label className="block text-[13px] text-[var(--text-secondary)] mb-1.5">
+              <span className="text-[var(--text-placeholder)] mr-2">{i + 1}.</span>
               {q.label}
             </label>
             <input
@@ -90,7 +90,7 @@ export default function Stage2({ onComplete }: Props) {
               value={answers[q.key] || ''}
               onChange={e => setAnswers(prev => ({ ...prev, [q.key]: e.target.value }))}
               placeholder={q.placeholder}
-              className="w-full px-3 py-2.5 bg-[#0F0F0F] border border-[#1E1E1E] rounded text-[13px] text-white placeholder-[#3A3A3A] focus:outline-none focus:border-[#3A3A3A] transition-colors"
+              className="w-full px-3 py-2.5 bg-[var(--surface-raised)] border border-[var(--border)] rounded text-[13px] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-[var(--border)] transition-colors"
             />
           </div>
         ))}

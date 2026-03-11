@@ -10,23 +10,23 @@ function CollapsibleGroup({
 }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
-    <div className="border border-[#1E1E1E] rounded overflow-hidden">
+    <div className="border border-[var(--border)] rounded overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-4 py-2.5 bg-[#0A0A0A] hover:bg-[#111111] transition-colors text-left"
+        className="w-full flex items-center justify-between px-4 py-2.5 bg-[var(--bg)] hover:bg-[var(--surface)] transition-colors text-left"
       >
         <div className="flex items-center gap-2">
-          <span className="text-[12px] font-medium text-[#A0A0A0]">{label}</span>
+          <span className="text-[12px] font-medium text-[var(--text-secondary)]">{label}</span>
           {count > 0 && (
             <span className="text-[10px] px-1.5 py-0.5 bg-[#5E6AD2]/20 text-[#8B95E2] rounded-full font-medium">{count}</span>
           )}
         </div>
-        <svg className={`w-3.5 h-3.5 text-[#4A4A4A] transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className={`w-3.5 h-3.5 text-[var(--text-placeholder)] transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-      {open && <div className="px-4 py-3 bg-[#0A0A0A]">{children}</div>}
+      {open && <div className="px-4 py-3 bg-[var(--bg)]">{children}</div>}
     </div>
   )
 }
@@ -40,7 +40,7 @@ function Chip({ label, selected, onClick }: { label: string; selected: boolean; 
       className={`px-3 py-1.5 rounded text-[12px] font-medium border transition-all ${
         selected
           ? 'bg-[#5E6AD2]/15 border-[#5E6AD2] text-[#8B95E2]'
-          : 'bg-[#0F0F0F] border-[#1E1E1E] text-[#6B6B6B] hover:border-[#2A2A2A] hover:text-[#A0A0A0]'
+          : 'bg-[var(--surface-raised)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--border)] hover:text-[var(--text-secondary)]'
       }`}
     >
       {label}
@@ -78,13 +78,13 @@ function TagInputWithSuggestions({
   return (
     <div className="relative">
       <div
-        className="min-h-[38px] px-2.5 py-1.5 bg-[#0F0F0F] border border-[#1E1E1E] rounded flex flex-wrap gap-1.5 items-center cursor-text focus-within:border-[#3A3A3A] transition-colors"
+        className="min-h-[38px] px-2.5 py-1.5 bg-[var(--surface-raised)] border border-[var(--border)] rounded flex flex-wrap gap-1.5 items-center cursor-text focus-within:border-[var(--border)] transition-colors"
         onClick={() => { inputRef.current?.focus(); setShowDropdown(true) }}
       >
         {tags.map(tag => (
-          <span key={tag} className="flex items-center gap-1 px-2 py-0.5 bg-[#1E1E1E] text-[#A0A0A0] text-[11px] rounded">
+          <span key={tag} className="flex items-center gap-1 px-2 py-0.5 bg-[#1E1E1E] text-[var(--text-secondary)] text-[11px] rounded">
             {tag}
-            <button type="button" onClick={e => { e.stopPropagation(); onChange(tags.filter(t => t !== tag)) }} className="text-[#4A4A4A] hover:text-[#A0A0A0] leading-none">×</button>
+            <button type="button" onClick={e => { e.stopPropagation(); onChange(tags.filter(t => t !== tag)) }} className="text-[var(--text-placeholder)] hover:text-[var(--text-secondary)] leading-none">×</button>
           </span>
         ))}
         <input
@@ -95,17 +95,17 @@ function TagInputWithSuggestions({
           onFocus={() => setShowDropdown(true)}
           onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
           placeholder={tags.length === 0 ? placeholder : ''}
-          className="flex-1 min-w-[100px] bg-transparent text-[12px] text-white placeholder-[#3A3A3A] outline-none"
+          className="flex-1 min-w-[100px] bg-transparent text-[12px] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] outline-none"
         />
       </div>
       {showDropdown && filtered.length > 0 && (
-        <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-[#111111] border border-[#1E1E1E] rounded shadow-xl max-h-48 overflow-y-auto">
+        <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-[var(--surface)] border border-[var(--border)] rounded shadow-xl max-h-48 overflow-y-auto">
           {filtered.map(s => (
             <button
               key={s}
               type="button"
               onMouseDown={e => { e.preventDefault(); addTag(s) }}
-              className="w-full px-3 py-2 text-[12px] text-[#A0A0A0] hover:bg-[#1E1E1E] hover:text-white text-left transition-colors"
+              className="w-full px-3 py-2 text-[12px] text-[var(--text-secondary)] hover:bg-[#1E1E1E] hover:text-[var(--text-primary)] text-left transition-colors"
             >
               {s}
             </button>
@@ -158,20 +158,20 @@ function DepartmentPicker({
     onChange(selected.includes(title) ? selected.filter(s => s !== title) : [...selected, title])
 
   return (
-    <div className="border border-[#1E1E1E] rounded overflow-hidden">
-      <div className="px-3 py-2 border-b border-[#1E1E1E] bg-[#0A0A0A]">
+    <div className="border border-[var(--border)] rounded overflow-hidden">
+      <div className="px-3 py-2 border-b border-[var(--border)] bg-[var(--bg)]">
         <input
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search departments or titles…"
-          className="w-full bg-transparent text-[12px] text-white placeholder-[#3A3A3A] outline-none"
+          className="w-full bg-transparent text-[12px] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] outline-none"
         />
       </div>
       <div className="max-h-60 overflow-y-auto">
         {filtered.map(g => (
           <div key={g.label} className="border-b border-[#0F0F0F] last:border-0">
-            <div className="flex items-center px-3 py-2.5 hover:bg-[#0F0F0F] transition-colors">
+            <div className="flex items-center px-3 py-2.5 hover:bg-[var(--surface-raised)] transition-colors">
               <input
                 type="checkbox"
                 id={`dept-${g.label}`}
@@ -179,13 +179,13 @@ function DepartmentPicker({
                 onChange={() => toggleDept(g.label)}
                 className="mr-2.5 accent-[#5E6AD2] cursor-pointer"
               />
-              <label htmlFor={`dept-${g.label}`} className="flex-1 text-[12px] text-[#A0A0A0] cursor-pointer select-none">
+              <label htmlFor={`dept-${g.label}`} className="flex-1 text-[12px] text-[var(--text-secondary)] cursor-pointer select-none">
                 {g.label}
               </label>
               <button
                 type="button"
                 onClick={() => toggleExpand(g.label)}
-                className="text-[#3A3A3A] hover:text-[#6B6B6B] text-sm px-2 py-0.5 rounded transition-colors"
+                className="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] text-sm px-2 py-0.5 rounded transition-colors"
               >
                 {expanded.includes(g.label) ? '−' : '+'}
               </button>
@@ -193,7 +193,7 @@ function DepartmentPicker({
             {expanded.includes(g.label) && (
               <div className="pl-9 pb-2 space-y-0.5 bg-[#050505]">
                 {g.titles.map(t => (
-                  <div key={t} className="flex items-center px-2 py-1.5 hover:bg-[#0F0F0F] rounded transition-colors">
+                  <div key={t} className="flex items-center px-2 py-1.5 hover:bg-[var(--surface-raised)] rounded transition-colors">
                     <input
                       type="checkbox"
                       id={`title-${t}`}
@@ -201,7 +201,7 @@ function DepartmentPicker({
                       onChange={() => toggleTitle(t)}
                       className="mr-2 accent-[#5E6AD2] cursor-pointer"
                     />
-                    <label htmlFor={`title-${t}`} className="text-[11px] text-[#6B6B6B] cursor-pointer select-none">{t}</label>
+                    <label htmlFor={`title-${t}`} className="text-[11px] text-[var(--text-secondary)] cursor-pointer select-none">{t}</label>
                   </div>
                 ))}
               </div>
@@ -416,7 +416,7 @@ function LocationPicker({ onChange }: { onChange: (locs: string[]) => void }) {
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-[11px] text-[#4A4A4A] mb-2">Country</p>
+        <p className="text-[11px] text-[var(--text-placeholder)] mb-2">Country</p>
         <div className="flex flex-wrap gap-1.5">
           {COUNTRIES.map(c => (
             <Chip key={c} label={c} selected={selectedCountries.includes(c)} onClick={() => toggleCountry(c)} />
@@ -425,7 +425,7 @@ function LocationPicker({ onChange }: { onChange: (locs: string[]) => void }) {
       </div>
       {selectedCountries.filter(c => COUNTRY_REGIONS[c]).map(country => (
         <div key={country}>
-          <p className="text-[11px] text-[#4A4A4A] mb-2">{country} — States / Regions</p>
+          <p className="text-[11px] text-[var(--text-placeholder)] mb-2">{country} — States / Regions</p>
           <div className="flex flex-wrap gap-1.5">
             {COUNTRY_REGIONS[country].map(r => (
               <Chip key={r} label={r} selected={selectedRegions.includes(r)} onClick={() => toggleRegion(r)} />
@@ -434,7 +434,7 @@ function LocationPicker({ onChange }: { onChange: (locs: string[]) => void }) {
         </div>
       ))}
       <div>
-        <p className="text-[11px] text-[#4A4A4A] mb-2">Specific Cities <span className="text-[#3A3A3A]">(press Enter to add)</span></p>
+        <p className="text-[11px] text-[var(--text-placeholder)] mb-2">Specific Cities <span className="text-[var(--text-tertiary)]">(press Enter to add)</span></p>
         <TagInputWithSuggestions
           tags={cities}
           onChange={setCities}
@@ -549,7 +549,7 @@ export default function Stage3({ onComplete }: Props) {
   }
 
   const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-    <p className="text-[11px] font-medium uppercase tracking-wider text-[#6B6B6B] mb-2">{children}</p>
+    <p className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-secondary)] mb-2">{children}</p>
   )
 
   return (
@@ -557,17 +557,17 @@ export default function Stage3({ onComplete }: Props) {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-lg font-medium text-white mb-1">
+          <h2 className="text-lg font-medium text-[var(--text-primary)] mb-1">
             {screen === 1 ? 'Who are you targeting?' : 'What are you selling?'}
           </h2>
-          <p className="text-[13px] text-[#6B6B6B]">
+          <p className="text-[13px] text-[var(--text-secondary)]">
             {screen === 1 ? 'Select all that apply.' : 'Be specific — this drives your copy.'}
           </p>
         </div>
         <div className="flex gap-1.5 items-center shrink-0">
           <div className="w-5 h-1 rounded bg-[#5E6AD2]" />
           <div className={`w-5 h-1 rounded ${screen === 2 ? 'bg-[#5E6AD2]' : 'bg-[#2A2A2A]'}`} />
-          <span className="text-[11px] text-[#4A4A4A] ml-1">Screen {screen}/2</span>
+          <span className="text-[11px] text-[var(--text-placeholder)] ml-1">Screen {screen}/2</span>
         </div>
       </div>
 
@@ -664,7 +664,7 @@ export default function Stage3({ onComplete }: Props) {
             <SectionLabel>Job Titles</SectionLabel>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <p className="text-[11px] text-[#4A4A4A] mb-1.5">Include</p>
+                <p className="text-[11px] text-[var(--text-placeholder)] mb-1.5">Include</p>
                 <TagInputWithSuggestions
                   tags={form.job_titles_include}
                   onChange={v => set('job_titles_include', v)}
@@ -673,7 +673,7 @@ export default function Stage3({ onComplete }: Props) {
                 />
               </div>
               <div>
-                <p className="text-[11px] text-[#4A4A4A] mb-1.5">Exclude</p>
+                <p className="text-[11px] text-[var(--text-placeholder)] mb-1.5">Exclude</p>
                 <TagInputWithSuggestions
                   tags={form.job_titles_exclude}
                   onChange={v => set('job_titles_exclude', v)}
@@ -689,7 +689,7 @@ export default function Stage3({ onComplete }: Props) {
             <SectionLabel>Keywords</SectionLabel>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <p className="text-[11px] text-[#4A4A4A] mb-1.5">Include</p>
+                <p className="text-[11px] text-[var(--text-placeholder)] mb-1.5">Include</p>
                 <TagInputWithSuggestions
                   tags={form.keywords_include}
                   onChange={v => set('keywords_include', v)}
@@ -698,7 +698,7 @@ export default function Stage3({ onComplete }: Props) {
                 />
               </div>
               <div>
-                <p className="text-[11px] text-[#4A4A4A] mb-1.5">Exclude</p>
+                <p className="text-[11px] text-[var(--text-placeholder)] mb-1.5">Exclude</p>
                 <TagInputWithSuggestions
                   tags={form.keywords_exclude}
                   onChange={v => set('keywords_exclude', v)}
@@ -732,21 +732,21 @@ export default function Stage3({ onComplete }: Props) {
           {/* Freetext */}
           <div className="space-y-3">
             <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B6B6B] mb-1.5">Describe your offer in one sentence</label>
-              <input type="text" value={form.offer_description} onChange={e => set('offer_description', e.target.value)} placeholder="We help restaurant owners get $10K-$500K in working capital within 48 hours" className="w-full px-3 py-2.5 bg-[#0F0F0F] border border-[#1E1E1E] rounded text-[13px] text-white placeholder-[#3A3A3A] focus:outline-none focus:border-[#3A3A3A] transition-colors" />
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-[var(--text-secondary)] mb-1.5">Describe your offer in one sentence</label>
+              <input type="text" value={form.offer_description} onChange={e => set('offer_description', e.target.value)} placeholder="We help restaurant owners get $10K-$500K in working capital within 48 hours" className="w-full px-3 py-2.5 bg-[var(--surface-raised)] border border-[var(--border)] rounded text-[13px] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-[var(--border)] transition-colors" />
             </div>
             <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B6B6B] mb-1.5">Describe your best ever customer</label>
-              <input type="text" value={form.best_customer_description} onChange={e => set('best_customer_description', e.target.value)} placeholder="Family-owned restaurant, 2 locations, needed capital fast, closed in 3 days" className="w-full px-3 py-2.5 bg-[#0F0F0F] border border-[#1E1E1E] rounded text-[13px] text-white placeholder-[#3A3A3A] focus:outline-none focus:border-[#3A3A3A] transition-colors" />
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-[var(--text-secondary)] mb-1.5">Describe your best ever customer</label>
+              <input type="text" value={form.best_customer_description} onChange={e => set('best_customer_description', e.target.value)} placeholder="Family-owned restaurant, 2 locations, needed capital fast, closed in 3 days" className="w-full px-3 py-2.5 bg-[var(--surface-raised)] border border-[var(--border)] rounded text-[13px] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-[var(--border)] transition-colors" />
             </div>
             <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wider text-[#6B6B6B] mb-1.5">Your Calendly or booking link</label>
-              <input type="text" value={form.calendly_link} onChange={e => set('calendly_link', e.target.value)} placeholder="calendly.com/yourname" className="w-full px-3 py-2.5 bg-[#0F0F0F] border border-[#1E1E1E] rounded text-[13px] text-white placeholder-[#3A3A3A] focus:outline-none focus:border-[#3A3A3A] transition-colors" />
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-[var(--text-secondary)] mb-1.5">Your Calendly or booking link</label>
+              <input type="text" value={form.calendly_link} onChange={e => set('calendly_link', e.target.value)} placeholder="calendly.com/yourname" className="w-full px-3 py-2.5 bg-[var(--surface-raised)] border border-[var(--border)] rounded text-[13px] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-[var(--border)] transition-colors" />
             </div>
           </div>
 
           <div className="flex justify-between pt-2">
-            <button onClick={() => setScreen(1)} className="text-[13px] text-[#6B6B6B] hover:text-white transition-colors">← Back</button>
+            <button onClick={() => setScreen(1)} className="text-[13px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">← Back</button>
             <button
               onClick={handleSubmit}
               disabled={!screen2Valid || saving}

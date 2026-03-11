@@ -24,10 +24,10 @@ export default function StageProgress({ currentStage }: { currentStage: number }
                 <div
                   className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-semibold shrink-0 border ${
                     done
-                      ? 'bg-[#5E6AD2] border-[#5E6AD2] text-white'
+                      ? 'bg-[#5E6AD2] border-[#5E6AD2] text-[var(--text-primary)]'
                       : active
-                      ? 'bg-transparent border-white text-white'
-                      : 'bg-transparent border-[#3A3A3A] text-[#4A4A4A]'
+                      ? 'bg-transparent border-white text-[var(--text-primary)]'
+                      : 'bg-transparent border-[var(--border)] text-[var(--text-placeholder)]'
                   }`}
                 >
                   {done ? (
@@ -45,7 +45,7 @@ export default function StageProgress({ currentStage }: { currentStage: number }
               </div>
               <span
                 className={`mt-2 text-[11px] font-medium text-center ${
-                  active ? 'text-white' : done ? 'text-[#5E6AD2]' : 'text-[#4A4A4A]'
+                  active ? 'text-[var(--text-primary)]' : done ? 'text-[#5E6AD2]' : 'text-[var(--text-placeholder)]'
                 }`}
               >
                 {stage.label}

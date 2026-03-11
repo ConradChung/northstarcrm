@@ -97,8 +97,8 @@ export default function Stage1({ companyName, onComplete }: Props) {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-lg font-medium text-white mb-1">Email Inbox Setup</h2>
-        <p className="text-[13px] text-[#6B6B6B]">Upload a professional photo and choose your sending domain.</p>
+        <h2 className="text-lg font-medium text-[var(--text-primary)] mb-1">Email Inbox Setup</h2>
+        <p className="text-[13px] text-[var(--text-secondary)]">Upload a professional photo and choose your sending domain.</p>
       </div>
 
       {error && (
@@ -107,27 +107,27 @@ export default function Stage1({ companyName, onComplete }: Props) {
 
       {/* Profile picture */}
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-wider text-[#6B6B6B] mb-3">Profile Photo</p>
+        <p className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-secondary)] mb-3">Profile Photo</p>
         <div className="flex items-center gap-5">
           <div
             onClick={() => fileRef.current?.click()}
-            className="w-20 h-20 rounded-full border-2 border-dashed border-[#2A2A2A] hover:border-[#5E6AD2] transition-colors cursor-pointer overflow-hidden flex items-center justify-center bg-[#0F0F0F] shrink-0"
+            className="w-20 h-20 rounded-full border-2 border-dashed border-[var(--border)] hover:border-[#5E6AD2] transition-colors cursor-pointer overflow-hidden flex items-center justify-center bg-[var(--surface-raised)] shrink-0"
           >
             {previewUrl ? (
               <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
             ) : uploadingPic ? (
               <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
             ) : (
-              <svg className="w-6 h-6 text-[#3A3A3A]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-6 h-6 text-[var(--text-tertiary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
               </svg>
             )}
           </div>
           <div>
-            <p className="text-[13px] text-[#A0A0A0] mb-1">
+            <p className="text-[13px] text-[var(--text-secondary)] mb-1">
               {profilePicUrl ? 'Photo uploaded ✓' : 'Click to upload a photo'}
             </p>
-            <p className="text-[11px] text-[#4A4A4A]">JPG, PNG or WebP · Max 5MB</p>
+            <p className="text-[11px] text-[var(--text-placeholder)]">JPG, PNG or WebP · Max 5MB</p>
           </div>
         </div>
         <input
@@ -141,23 +141,23 @@ export default function Stage1({ companyName, onComplete }: Props) {
 
       {/* Company name override */}
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-wider text-[#6B6B6B] mb-3">Company Name</p>
+        <p className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-secondary)] mb-3">Company Name</p>
         <input
           type="text"
           value={clientCompanyName}
           onChange={e => { setClientCompanyName(e.target.value); setDomains([]); setSelectedDomains([]) }}
           placeholder="Your company name"
-          className="w-full bg-[#0F0F0F] border border-[#2A2A2A] rounded px-3 py-2 text-[13px] text-white placeholder-[#4A4A4A] focus:outline-none focus:border-[#5E6AD2]"
+          className="w-full bg-[var(--surface-raised)] border border-[var(--border)] rounded px-3 py-2 text-[13px] text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-[#5E6AD2]"
         />
         {clientCompanyName !== companyName && (
-          <p className="text-[11px] text-[#6B6B6B] mt-1">Overriding "{companyName}"</p>
+          <p className="text-[11px] text-[var(--text-secondary)] mt-1">Overriding "{companyName}"</p>
         )}
       </div>
 
       {/* Domain generation */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-[#6B6B6B]">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-secondary)]">
             Sending Domain
           </p>
           <button
@@ -172,14 +172,14 @@ export default function Stage1({ companyName, onComplete }: Props) {
         {domains.length === 0 && !generatingDomains && (
           <button
             onClick={generateDomains}
-            className="w-full border border-dashed border-[#2A2A2A] hover:border-[#5E6AD2] rounded py-8 text-[13px] text-[#4A4A4A] hover:text-[#6B6B6B] transition-colors"
+            className="w-full border border-dashed border-[var(--border)] hover:border-[#5E6AD2] rounded py-8 text-[13px] text-[var(--text-placeholder)] hover:text-[var(--text-secondary)] transition-colors"
           >
             Click to generate available domain suggestions based on your company name
           </button>
         )}
 
         {generatingDomains && (
-          <div className="border border-[#1E1E1E] rounded py-8 flex items-center justify-center gap-2 text-[13px] text-[#6B6B6B]">
+          <div className="border border-[var(--border)] rounded py-8 flex items-center justify-center gap-2 text-[13px] text-[var(--text-secondary)]">
             <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
             Checking availability…
           </div>
@@ -193,8 +193,8 @@ export default function Stage1({ companyName, onComplete }: Props) {
                 onClick={() => toggleDomain(d.name)}
                 className={`flex items-center gap-2 px-3 py-2 rounded text-[13px] border transition-all text-left ${
                   selectedDomains.includes(d.name)
-                    ? 'border-[#5E6AD2] bg-[#5E6AD2]/10 text-white'
-                    : 'border-[#1E1E1E] bg-[#0F0F0F] text-[#A0A0A0] hover:border-[#2A2A2A] hover:text-white'
+                    ? 'border-[#5E6AD2] bg-[#5E6AD2]/10 text-[var(--text-primary)]'
+                    : 'border-[var(--border)] bg-[var(--surface-raised)] text-[var(--text-secondary)] hover:border-[var(--border)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-[#2ECC71] shrink-0" />

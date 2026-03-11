@@ -25,8 +25,8 @@ export default function DocuSignSection({ url, acknowledged, onAcknowledge }: Pr
 
   if (!url) {
     return (
-      <div className="border border-[#1E1E1E] rounded px-5 py-4">
-        <p className="text-[13px] text-[#6B6B6B]">
+      <div className="border border-[var(--border)] rounded px-5 py-4">
+        <p className="text-[13px] text-[var(--text-secondary)]">
           Agreement pending — your account manager will send this shortly.
         </p>
       </div>
@@ -38,8 +38,8 @@ export default function DocuSignSection({ url, acknowledged, onAcknowledge }: Pr
       <p className="text-[11px] font-medium uppercase tracking-wider text-[#5E6AD2] mb-1">
         Step 1 of 1 — Agreement
       </p>
-      <h3 className="text-base font-medium text-white mb-1">Sign your client agreement</h3>
-      <p className="text-[13px] text-[#6B6B6B] mb-4">
+      <h3 className="text-base font-medium text-[var(--text-primary)] mb-1">Sign your client agreement</h3>
+      <p className="text-[13px] text-[var(--text-secondary)] mb-4">
         Review and sign the agreement before we begin your onboarding.
       </p>
       <a
@@ -62,16 +62,16 @@ export default function DocuSignSection({ url, acknowledged, onAcknowledge }: Pr
         />
         <div
           className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-colors ${
-            checked ? 'bg-[#5E6AD2] border-[#5E6AD2]' : 'border-[#3A3A3A] bg-transparent'
+            checked ? 'bg-[#5E6AD2] border-[#5E6AD2]' : 'border-[var(--border)] bg-transparent'
           }`}
         >
           {checked && (
-            <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-2.5 h-2.5 text-[var(--text-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>
           )}
         </div>
-        <span className="text-[13px] text-[#A0A0A0]">I've signed the agreement</span>
+        <span className="text-[13px] text-[var(--text-secondary)]">I've signed the agreement</span>
       </label>
       {checked && (
         <button
@@ -81,7 +81,7 @@ export default function DocuSignSection({ url, acknowledged, onAcknowledge }: Pr
             setSaving(false)
           }}
           disabled={saving}
-          className="mt-3 px-4 py-1.5 bg-[#5E6AD2] text-white text-sm font-medium rounded hover:bg-[#4E5AC2] transition-colors disabled:opacity-50"
+          className="mt-3 px-4 py-1.5 bg-[#5E6AD2] text-[var(--text-primary)] text-sm font-medium rounded hover:bg-[#4E5AC2] transition-colors disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Continue to Onboarding →'}
         </button>

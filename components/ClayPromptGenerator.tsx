@@ -113,24 +113,24 @@ function RunsHistory({ runs, onLoad, clients }: { runs: AiRun[]; onLoad: (run: A
   if (!runs.length) return null
   return (
     <div className="mt-2">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#3A3A3A] mb-2 flex items-center gap-1.5">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-2 flex items-center gap-1.5">
         <Clock size={10} /> Previous runs
       </p>
       <div className="space-y-1">
         {runs.map(run => {
           const color = clientColor(run.client_id)
           return (
-            <div key={run.id} className="flex items-center justify-between px-3 py-2 rounded-lg border border-[#1A1A1A] hover:border-[#2A2A2A] transition-colors">
+            <div key={run.id} className="flex items-center justify-between px-3 py-2 rounded-lg border border-[var(--border-subtle)] hover:border-[var(--border)] transition-colors">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="text-[12px] text-[#5A5A5A] shrink-0 w-16">{relativeTime(run.created_at)}</span>
+                <span className="text-[12px] text-[var(--text-secondary)] shrink-0 w-16">{relativeTime(run.created_at)}</span>
                 <span className="text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0"
                   style={{ color, background: `${color}18`, border: `1px solid ${color}33` }}>
                   {clientName(run.client_id)}
                 </span>
               </div>
               <div className="flex items-center gap-3 shrink-0">
-                <button onClick={() => onLoad(run)} className="text-[11px] text-[#5A5A5A] hover:text-white transition-colors">Load</button>
-                <button onClick={() => copyRun(run)} className="flex items-center gap-1 text-[11px] text-[#5A5A5A] hover:text-white transition-colors">
+                <button onClick={() => onLoad(run)} className="text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">Load</button>
+                <button onClick={() => copyRun(run)} className="flex items-center gap-1 text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                   {copiedId === run.id ? <Check size={11} className="text-[#2ECC71]" /> : <Copy size={11} />}
                   {copiedId === run.id ? 'Copied' : 'Copy'}
                 </button>
@@ -153,7 +153,7 @@ export default function ClayPromptGenerator({ clients }: Props) {
   const [runs, setRuns] = useState<AiRun[]>([])
   const [templateVariant, setTemplateVariant] = useState<TemplateTab>('multi')
 
-  const inputCls = 'w-full px-3 py-2 bg-[#0F0F0F] border border-[#1E1E1E] rounded-lg text-[13px] text-white placeholder-[#4A4A4A] focus:outline-none focus:border-[#3A3A3A]'
+  const inputCls = 'w-full px-3 py-2 bg-[var(--surface-raised)] border border-[var(--border)] rounded-lg text-[13px] text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-[var(--border)]'
 
   useEffect(() => {
     loadAllRuns('clay-prompts').then(setRuns)
@@ -234,7 +234,7 @@ export default function ClayPromptGenerator({ clients }: Props) {
         <button
           onClick={generate}
           disabled={!clientId || loading}
-          className="flex items-center gap-2 px-4 py-2 bg-white text-[#0A0A0A] text-[13px] font-medium rounded-lg hover:bg-[#E0E0E0] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] text-[var(--accent-fg)] text-[13px] font-medium rounded-lg hover:opacity-90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {loading ? (
             <span className="w-3.5 h-3.5 border-2 border-[#0A0A0A]/30 border-t-[#0A0A0A] rounded-full animate-spin" />
@@ -244,7 +244,7 @@ export default function ClayPromptGenerator({ clients }: Props) {
           {loading ? 'Generating...' : 'Generate from ICP'}
         </button>
         {prompts.length > 0 && (
-          <button onClick={generate} className="p-2 text-[#5A5A5A] hover:text-white border border-[#1E1E1E] rounded-lg transition-colors" title="Regenerate">
+          <button onClick={generate} className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border)] rounded-lg transition-colors" title="Regenerate">
             <RotateCcw size={14} />
           </button>
         )}
@@ -254,39 +254,39 @@ export default function ClayPromptGenerator({ clients }: Props) {
 
       {loading && prompts.length === 0 && (
         <div className="flex items-center gap-2 py-2">
-          <span className="w-3.5 h-3.5 border-2 border-[#3A3A3A] border-t-[#5E6AD2] rounded-full animate-spin" />
-          <span className="text-[13px] text-[#4A4A4A]">Building Clay prompts from ICP data...</span>
+          <span className="w-3.5 h-3.5 border-2 border-[var(--border)] border-t-[#5E6AD2] rounded-full animate-spin" />
+          <span className="text-[13px] text-[var(--text-placeholder)]">Building Clay prompts from ICP data...</span>
         </div>
       )}
 
       {/* AI-generated prompts */}
       {prompts.length > 0 && (
-        <div className="border border-[#1E1E1E] rounded-xl overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#1E1E1E]">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#5A5A5A]">
+        <div className="border border-[var(--border)] rounded-xl overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2.5 border-b border-[var(--border)]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
               ICP-Generated Prompts
             </span>
-            <button onClick={copyAll} className="flex items-center gap-1.5 text-[12px] text-[#5A5A5A] hover:text-white transition-colors">
+            <button onClick={copyAll} className="flex items-center gap-1.5 text-[12px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
               {copied === 'all' ? <Check size={13} className="text-[#2ECC71]" /> : <Copy size={13} />}
               {copied === 'all' ? 'Copied' : 'Copy all'}
             </button>
           </div>
-          <div className="divide-y divide-[#1A1A1A]">
+          <div className="divide-y divide-[var(--border-subtle)]">
             {prompts.map((p, i) => (
               <div key={p.id || i} className="px-4 py-4">
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div>
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5E6AD2] mb-0.5">{p.title}</p>
-                    <p className="text-[12px] text-[#5A5A5A]">{p.description}</p>
+                    <p className="text-[12px] text-[var(--text-secondary)]">{p.description}</p>
                   </div>
                   <button onClick={() => copyPrompt(p.id || String(i), p.prompt)}
-                    className="shrink-0 flex items-center gap-1.5 text-[12px] text-[#5A5A5A] hover:text-white transition-colors">
+                    className="shrink-0 flex items-center gap-1.5 text-[12px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                     {copied === (p.id || String(i)) ? <Check size={13} className="text-[#2ECC71]" /> : <Copy size={13} />}
                     {copied === (p.id || String(i)) ? 'Copied' : 'Copy'}
                   </button>
                 </div>
-                <div className="bg-[#0A0A0A] border border-[#1E1E1E] rounded-lg px-3 py-2.5">
-                  <p className="text-[12px] text-[#A0A0A0] font-mono whitespace-pre-wrap leading-relaxed">{p.prompt}</p>
+                <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2.5">
+                  <p className="text-[12px] text-[var(--text-secondary)] font-mono whitespace-pre-wrap leading-relaxed">{p.prompt}</p>
                 </div>
               </div>
             ))}
@@ -295,25 +295,25 @@ export default function ClayPromptGenerator({ clients }: Props) {
       )}
 
       {/* Prompt templates */}
-      <div className="border border-[#1E1E1E] rounded-xl overflow-hidden">
+      <div className="border border-[var(--border)] rounded-xl overflow-hidden">
         {/* Tab row */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#1E1E1E]">
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-[var(--border)]">
           <div className="flex items-center gap-3">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#5A5A5A] shrink-0">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)] shrink-0">
               Templates
             </span>
-            <div className="flex items-center gap-1 bg-[#0D0D0D] border border-[#1E1E1E] rounded-lg p-0.5 flex-wrap">
+            <div className="flex items-center gap-1 bg-[var(--surface-raised)] border border-[var(--border)] rounded-lg p-0.5 flex-wrap">
               {TEMPLATE_TABS.map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setTemplateVariant(tab.id)}
-                  className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors whitespace-nowrap ${templateVariant === tab.id ? 'bg-[#1E1E1E] text-white' : 'text-[#5A5A5A] hover:text-white'}`}>
+                  className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors whitespace-nowrap ${templateVariant === tab.id ? 'bg-[#1E1E1E] text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
                   {tab.label}
                 </button>
               ))}
             </div>
           </div>
-          <button onClick={copyAllTemplates} className="flex items-center gap-1.5 text-[12px] text-[#5A5A5A] hover:text-white transition-colors shrink-0 ml-4">
+          <button onClick={copyAllTemplates} className="flex items-center gap-1.5 text-[12px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors shrink-0 ml-4">
             {copied === 'tmpl-all' ? <Check size={13} className="text-[#2ECC71]" /> : <Copy size={13} />}
             {copied === 'tmpl-all' ? 'Copied all' : 'Copy all'}
           </button>
@@ -326,16 +326,16 @@ export default function ClayPromptGenerator({ clients }: Props) {
               <div className="flex items-start justify-between gap-3 mb-2">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5E6AD2] mb-0.5">{p.title}</p>
-                  <p className="text-[12px] text-[#5A5A5A]">{p.description}</p>
+                  <p className="text-[12px] text-[var(--text-secondary)]">{p.description}</p>
                 </div>
                 <button onClick={() => copyPrompt(p.id, p.prompt)}
-                  className="shrink-0 flex items-center gap-1.5 text-[12px] text-[#5A5A5A] hover:text-white transition-colors">
+                  className="shrink-0 flex items-center gap-1.5 text-[12px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                   {copied === p.id ? <Check size={13} className="text-[#2ECC71]" /> : <Copy size={13} />}
                   {copied === p.id ? 'Copied' : 'Copy'}
                 </button>
               </div>
-              <div className="bg-[#0A0A0A] border border-[#1E1E1E] rounded-lg px-3 py-2.5">
-                <p className="text-[12px] text-[#A0A0A0] font-mono whitespace-pre-wrap leading-relaxed">{p.prompt}</p>
+              <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2.5">
+                <p className="text-[12px] text-[var(--text-secondary)] font-mono whitespace-pre-wrap leading-relaxed">{p.prompt}</p>
               </div>
             </div>
           )

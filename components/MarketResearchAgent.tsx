@@ -31,7 +31,7 @@ interface Props {
   clients: Client[]
 }
 
-const inputCls = 'w-full px-3 py-2 bg-[#0F0F0F] border border-[#1E1E1E] rounded-lg text-[13px] text-white placeholder-[#4A4A4A] focus:outline-none focus:border-[#3A3A3A]'
+const inputCls = 'w-full px-3 py-2 bg-[var(--surface-raised)] border border-[var(--border)] rounded-lg text-[13px] text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-[var(--border)]'
 
 const STAGES = [
   'Pulling client ICP data...',
@@ -185,11 +185,11 @@ async function buildPDF(text: string, clientName: string): Promise<Blob> {
 function SnapshotField({ icon, label, value }: { icon: React.ReactNode; label: string; value?: string | null }) {
   if (!value) return null
   return (
-    <div className="flex gap-2.5 py-3 border-b border-[#1A1A1A] last:border-0">
-      <div className="shrink-0 mt-0.5 text-[#5A5A5A]">{icon}</div>
+    <div className="flex gap-2.5 py-3 border-b border-[var(--border-subtle)] last:border-0">
+      <div className="shrink-0 mt-0.5 text-[var(--text-secondary)]">{icon}</div>
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#4A4A4A] mb-0.5">{label}</p>
-        <p className="text-[13px] text-white leading-relaxed">{value}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-placeholder)] mb-0.5">{label}</p>
+        <p className="text-[13px] text-[var(--text-primary)] leading-relaxed">{value}</p>
       </div>
     </div>
   )
@@ -218,32 +218,32 @@ function PDFViewer({ blobUrl, filename, onDownload, onGoogleDrive, uploading }: 
   }, [])
 
   return (
-    <div className="border border-[#1E1E1E] rounded-xl overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 180px)' }}>
+    <div className="border border-[var(--border)] rounded-xl overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 180px)' }}>
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#1E1E1E] bg-[#0D0D0D] shrink-0">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-[var(--border)] bg-[var(--surface-raised)] shrink-0">
         <div className="flex items-center gap-4">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-[#5A5A5A]">{filename}</span>
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">{filename}</span>
           {numPages > 0 && (
-            <span className="text-[11px] text-[#3A3A3A] tabular-nums">{numPages} pages</span>
+            <span className="text-[11px] text-[var(--text-tertiary)] tabular-nums">{numPages} pages</span>
           )}
           <div className="flex items-center gap-1">
             <button onClick={() => setScale(s => Math.max(0.5, +(s - 0.1).toFixed(1)))}
-              className="p-1 text-[#5A5A5A] hover:text-white transition-colors">
+              className="p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
               <ZoomOut size={13} />
             </button>
-            <span className="text-[11px] text-[#5A5A5A] w-8 text-center tabular-nums">{Math.round(scale * 100)}%</span>
+            <span className="text-[11px] text-[var(--text-secondary)] w-8 text-center tabular-nums">{Math.round(scale * 100)}%</span>
             <button onClick={() => setScale(s => Math.min(2.5, +(s + 0.1).toFixed(1)))}
-              className="p-1 text-[#5A5A5A] hover:text-white transition-colors">
+              className="p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
               <ZoomIn size={13} />
             </button>
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <button onClick={onDownload} className="flex items-center gap-1.5 text-[12px] text-[#5A5A5A] hover:text-white transition-colors">
+          <button onClick={onDownload} className="flex items-center gap-1.5 text-[12px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
             <Download size={12} /> Download
           </button>
           <button onClick={onGoogleDrive} disabled={uploading}
-            className="flex items-center gap-1.5 text-[12px] text-[#5A5A5A] hover:text-white transition-colors disabled:opacity-40">
+            className="flex items-center gap-1.5 text-[12px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-40">
             {uploading
               ? <span className="w-3 h-3 border border-[#5A5A5A] border-t-white rounded-full animate-spin" />
               : <ExternalLink size={12} />}
@@ -253,13 +253,13 @@ function PDFViewer({ blobUrl, filename, onDownload, onGoogleDrive, uploading }: 
       </div>
 
       {/* Continuous scroll pages */}
-      <div ref={containerRef} className="flex-1 overflow-y-auto bg-[#141414] py-6 px-8">
+      <div ref={containerRef} className="flex-1 overflow-y-auto bg-[var(--surface-raised)] py-6 px-8">
         <Document
           file={blobUrl}
           onLoadSuccess={({ numPages }) => setNumPages(numPages)}
           loading={
-            <div className="flex items-center justify-center h-40 gap-2 text-[#4A4A4A] text-[13px]">
-              <span className="w-3.5 h-3.5 border-2 border-[#3A3A3A] border-t-[#5E6AD2] rounded-full animate-spin" />
+            <div className="flex items-center justify-center h-40 gap-2 text-[var(--text-placeholder)] text-[13px]">
+              <span className="w-3.5 h-3.5 border-2 border-[var(--border)] border-t-[#5E6AD2] rounded-full animate-spin" />
               Loading PDF...
             </div>
           }
@@ -304,24 +304,24 @@ function RunsHistory({ runs, onLoad, clients }: { runs: AiRun[]; onLoad: (run: A
   if (!runs.length) return null
   return (
     <div className="mt-2">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#3A3A3A] mb-2 flex items-center gap-1.5">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-2 flex items-center gap-1.5">
         <Clock size={10} /> Previous reports
       </p>
       <div className="space-y-1">
         {runs.map(run => {
           const color = clientColor(run.client_id)
           return (
-            <div key={run.id} className="flex items-center justify-between px-3 py-2 rounded-lg border border-[#1A1A1A] hover:border-[#2A2A2A] transition-colors">
+            <div key={run.id} className="flex items-center justify-between px-3 py-2 rounded-lg border border-[var(--border-subtle)] hover:border-[var(--border)] transition-colors">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="text-[12px] text-[#5A5A5A] shrink-0 w-16">{relativeTime(run.created_at)}</span>
+                <span className="text-[12px] text-[var(--text-secondary)] shrink-0 w-16">{relativeTime(run.created_at)}</span>
                 <span className="text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0"
                   style={{ color, background: `${color}18`, border: `1px solid ${color}33` }}>
                   {clientName(run.client_id)}
                 </span>
               </div>
               <div className="flex items-center gap-3 shrink-0">
-                <button onClick={() => onLoad(run)} className="text-[11px] text-[#5A5A5A] hover:text-white transition-colors">Load</button>
-                <button onClick={() => copyRun(run)} className="flex items-center gap-1 text-[11px] text-[#5A5A5A] hover:text-white transition-colors">
+                <button onClick={() => onLoad(run)} className="text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">Load</button>
+                <button onClick={() => copyRun(run)} className="flex items-center gap-1 text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                   {copiedId === run.id ? <Check size={11} className="text-[#2ECC71]" /> : <Copy size={11} />}
                   {copiedId === run.id ? 'Copied' : 'Copy'}
                 </button>
@@ -498,7 +498,7 @@ export default function MarketResearchAgent({ clients }: Props) {
     <div className="space-y-6">
       {/* Controls */}
       <div className="max-w-xl">
-        <h2 className="text-base font-medium text-white mb-5">Market Research</h2>
+        <h2 className="text-base font-medium text-[var(--text-primary)] mb-5">Market Research</h2>
         <div className="flex flex-col gap-3">
           <select value={clientId} onChange={e => handleClientChange(e.target.value)} className={inputCls}>
             <option value="">Standalone research (enter company below)</option>
@@ -516,14 +516,14 @@ export default function MarketResearchAgent({ clients }: Props) {
 
           <div className="flex gap-2">
             <button onClick={run} disabled={!canRun || loading}
-              className="flex items-center gap-2 px-4 py-2 bg-white text-[#0A0A0A] text-[13px] font-medium rounded-lg hover:bg-[#E0E0E0] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+              className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] text-[var(--accent-fg)] text-[13px] font-medium rounded-lg hover:opacity-90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
               {loading
                 ? <span className="w-3.5 h-3.5 border-2 border-[#0A0A0A]/30 border-t-[#0A0A0A] rounded-full animate-spin" />
                 : <Search size={14} />}
               {loading ? 'Researching...' : clientMode ? `Research ${selectedClient?.company_name}` : 'Run Research'}
             </button>
             {pdfBlobUrl && !loading && (
-              <button onClick={run} className="p-2 text-[#5A5A5A] hover:text-white border border-[#1E1E1E] rounded-lg transition-colors" title="Re-run">
+              <button onClick={run} className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border)] rounded-lg transition-colors" title="Re-run">
                 <RotateCcw size={14} />
               </button>
             )}
@@ -537,12 +537,12 @@ export default function MarketResearchAgent({ clients }: Props) {
       {(loading || generatingPDF) && (
         <div className="max-w-xl space-y-3">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-[12px] text-[#5A5A5A]">
+            <span className="text-[12px] text-[var(--text-secondary)]">
               {generatingPDF ? 'Rendering PDF...' : STAGES[stageIdx]}
             </span>
-            <span className="text-[11px] text-[#3A3A3A] tabular-nums">{progress}%</span>
+            <span className="text-[11px] text-[var(--text-tertiary)] tabular-nums">{progress}%</span>
           </div>
-          <div className="h-1 bg-[#1A1A1A] rounded-full overflow-hidden">
+          <div className="h-1 bg-[var(--border-subtle)] rounded-full overflow-hidden">
             <div
               className="h-full bg-[#5E6AD2] rounded-full transition-all duration-300 ease-out"
               style={{ width: `${progress}%` }}
@@ -559,14 +559,14 @@ export default function MarketResearchAgent({ clients }: Props) {
       {/* Client Snapshot — only shown when there's real data */}
       {hasSnapshotData && clientMode && !loading && (
         <div className="max-w-3xl">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#3A3A3A] mb-3">Client Profile</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-3">Client Profile</p>
           <div className="grid grid-cols-2 gap-3">
-            <div className="border border-[#1E1E1E] rounded-xl px-4 py-1">
+            <div className="border border-[var(--border)] rounded-xl px-4 py-1">
               <SnapshotField icon={<Building2 size={13} />} label="Current Offer" value={snapshot?.offer} />
               <SnapshotField icon={<Target size={13} />} label="Best Customer" value={snapshot?.best_customer} />
               <SnapshotField icon={<MessageSquare size={13} />} label="Why They Buy" value={snapshot?.why_said_yes} />
             </div>
-            <div className="border border-[#1E1E1E] rounded-xl px-4 py-1">
+            <div className="border border-[var(--border)] rounded-xl px-4 py-1">
               <SnapshotField icon={<Target size={13} />} label="Core Result Delivered" value={snapshot?.result_delivered} />
               <SnapshotField icon={<DollarSign size={13} />} label="Deal Size" value={snapshot?.deal_size} />
               <SnapshotField icon={<Building2 size={13} />} label="Industries" value={industriesStr} />

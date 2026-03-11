@@ -69,8 +69,8 @@ export default function ModulesSection() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-lg font-medium text-white mb-1">Training Modules</h2>
-        <p className="text-[13px] text-[#6B6B6B]">
+        <h2 className="text-lg font-medium text-[var(--text-primary)] mb-1">Training Modules</h2>
+        <p className="text-[13px] text-[var(--text-secondary)]">
           Short videos to help you get the most from your campaign.{' '}
           <span className="text-[#5E6AD2]">
             {watched.size}/{MODULES.length} watched
@@ -85,13 +85,13 @@ export default function ModulesSection() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.06 }}
-            className="relative rounded-xl border border-[#1E1E1E] bg-[#0F0F0F]"
+            className="relative rounded-xl border border-[var(--border)] bg-[var(--surface-raised)]"
           >
             <GlowingEffect spread={30} glow={false} disabled={false} proximity={80} borderWidth={1.5} />
 
             {/* Thumbnail */}
             <div
-              className="relative aspect-video bg-[#141414] flex items-center justify-center cursor-pointer group overflow-hidden rounded-t-xl"
+              className="relative aspect-video bg-[var(--surface-raised)] flex items-center justify-center cursor-pointer group overflow-hidden rounded-t-xl"
               onClick={() => toggle(mod.id)}
             >
               {/* Placeholder gradient */}
@@ -101,16 +101,16 @@ export default function ModulesSection() {
               />
 
               <div className="w-12 h-12 rounded-full bg-white/8 border border-white/15 flex items-center justify-center group-hover:bg-white/12 transition-colors">
-                <Play size={18} className="text-white ml-0.5" fill="white" />
+                <Play size={18} className="text-[var(--text-primary)] ml-0.5" fill="white" />
               </div>
 
               {/* Module number */}
-              <span className="absolute top-3 left-3 text-[11px] font-semibold text-white/25">
+              <span className="absolute top-3 left-3 text-[11px] font-semibold text-[var(--text-primary)]/25">
                 {String(mod.id).padStart(2, '0')}
               </span>
 
               {/* Duration */}
-              <div className="absolute bottom-3 right-3 flex items-center gap-1 text-[11px] text-white/40">
+              <div className="absolute bottom-3 right-3 flex items-center gap-1 text-[11px] text-[var(--text-primary)]/40">
                 <Clock size={11} />
                 {mod.duration}
               </div>
@@ -135,8 +135,8 @@ export default function ModulesSection() {
               >
                 {mod.category}
               </span>
-              <h3 className="text-[14px] font-medium text-white mb-1">{mod.title}</h3>
-              <p className="text-[12px] text-[#6B6B6B] leading-relaxed">{mod.description}</p>
+              <h3 className="text-[14px] font-medium text-[var(--text-primary)] mb-1">{mod.title}</h3>
+              <p className="text-[12px] text-[var(--text-secondary)] leading-relaxed">{mod.description}</p>
             </div>
           </motion.div>
         ))}

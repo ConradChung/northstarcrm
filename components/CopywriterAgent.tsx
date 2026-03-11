@@ -74,36 +74,36 @@ function EmailCard({ step, color, label, isStreaming }: {
     setTimeout(() => setCopied(false), 2000)
   }
   return (
-    <div className="flex flex-col border border-[#1E1E1E] rounded-xl overflow-hidden min-h-[320px]">
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#1E1E1E] bg-[#0D0D0D] shrink-0">
+    <div className="flex flex-col border border-[var(--border)] rounded-xl overflow-hidden min-h-[320px]">
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-[var(--border)] bg-[var(--surface-raised)] shrink-0">
         <div className="flex items-center gap-2.5">
           <span className="text-[10px] font-bold tabular-nums px-1.5 py-0.5 rounded"
             style={{ color, border: `1px solid ${color}33`, background: `${color}11` }}>{label}</span>
-          {step.title && <span className="text-[12px] font-semibold text-white">{step.title}</span>}
+          {step.title && <span className="text-[12px] font-semibold text-[var(--text-primary)]">{step.title}</span>}
         </div>
         {step.body && (
-          <button onClick={copyText} className="flex items-center gap-1 text-[11px] text-[#5A5A5A] hover:text-white transition-colors">
+          <button onClick={copyText} className="flex items-center gap-1 text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
             {copied ? <Check size={12} className="text-[#2ECC71]" /> : <Copy size={12} />}
             {copied ? 'Copied' : 'Copy'}
           </button>
         )}
       </div>
       {step.subject && (
-        <div className="px-5 pt-3.5 pb-2.5 border-b border-[#1A1A1A] shrink-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#4A4A4A] mb-1">Subject</p>
-          <p className="text-[12px] text-[#9A9A9A] font-mono">{step.subject}</p>
+        <div className="px-5 pt-3.5 pb-2.5 border-b border-[var(--border-subtle)] shrink-0">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-placeholder)] mb-1">Subject</p>
+          <p className="text-[12px] text-[var(--text-secondary)] font-mono">{step.subject}</p>
         </div>
       )}
       <div className="flex-1 px-5 py-4">
         {step.body ? (
-          <p className="text-[13px] text-white whitespace-pre-wrap leading-relaxed">{step.body}</p>
+          <p className="text-[13px] text-[var(--text-primary)] whitespace-pre-wrap leading-relaxed">{step.body}</p>
         ) : isStreaming ? (
           <span className="w-1.5 h-4 bg-[#5E6AD2] animate-pulse rounded-sm inline-block" />
         ) : null}
       </div>
       {step.meta && (
-        <div className="px-5 py-3 border-t border-[#1A1A1A] shrink-0">
-          <p className="text-[11px] text-[#3A3A3A] font-mono">{step.meta}</p>
+        <div className="px-5 py-3 border-t border-[var(--border-subtle)] shrink-0">
+          <p className="text-[11px] text-[var(--text-tertiary)] font-mono">{step.meta}</p>
         </div>
       )}
     </div>
@@ -112,14 +112,14 @@ function EmailCard({ step, color, label, isStreaming }: {
 
 function SkeletonCard({ label, color }: { label: string; color: string }) {
   return (
-    <div className="border border-[#1E1E1E] rounded-xl overflow-hidden min-h-[320px]">
-      <div className="flex items-center gap-2.5 px-5 py-3.5 border-b border-[#1E1E1E] bg-[#0D0D0D]">
+    <div className="border border-[var(--border)] rounded-xl overflow-hidden min-h-[320px]">
+      <div className="flex items-center gap-2.5 px-5 py-3.5 border-b border-[var(--border)] bg-[var(--surface-raised)]">
         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
           style={{ color, border: `1px solid ${color}33`, background: `${color}11` }}>{label}</span>
       </div>
       <div className="px-5 py-4 flex items-start gap-1.5">
         <span className="w-1.5 h-4 bg-[#5E6AD2] animate-pulse rounded-sm mt-0.5" />
-        <span className="text-[13px] text-[#4A4A4A]">Writing...</span>
+        <span className="text-[13px] text-[var(--text-placeholder)]">Writing...</span>
       </div>
     </div>
   )
@@ -138,24 +138,24 @@ function RunsHistory({ runs, onLoad, clients }: {
   if (!runs.length) return null
   return (
     <div className="mt-2">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#3A3A3A] mb-2 flex items-center gap-1.5">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-2 flex items-center gap-1.5">
         <Clock size={10} /> Previous runs
       </p>
       <div className="space-y-1">
         {runs.map(run => {
           const color = clientColor(run.client_id)
           return (
-            <div key={run.id} className="flex items-center justify-between px-3 py-2 rounded-lg border border-[#1A1A1A] hover:border-[#2A2A2A] transition-colors">
+            <div key={run.id} className="flex items-center justify-between px-3 py-2 rounded-lg border border-[var(--border-subtle)] hover:border-[var(--border)] transition-colors">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="text-[12px] text-[#5A5A5A] shrink-0 w-16">{relativeTime(run.created_at)}</span>
+                <span className="text-[12px] text-[var(--text-secondary)] shrink-0 w-16">{relativeTime(run.created_at)}</span>
                 <span className="text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0"
                   style={{ color, background: `${color}18`, border: `1px solid ${color}33` }}>
                   {clientName(run.client_id)}
                 </span>
               </div>
               <div className="flex items-center gap-3 shrink-0">
-                <button onClick={() => onLoad(run)} className="text-[11px] text-[#5A5A5A] hover:text-white transition-colors">Load</button>
-                <button onClick={() => copyRun(run)} className="flex items-center gap-1 text-[11px] text-[#5A5A5A] hover:text-white transition-colors">
+                <button onClick={() => onLoad(run)} className="text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">Load</button>
+                <button onClick={() => copyRun(run)} className="flex items-center gap-1 text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                   {copiedId === run.id ? <Check size={11} className="text-[#2ECC71]" /> : <Copy size={11} />}
                   {copiedId === run.id ? 'Copied' : 'Copy'}
                 </button>
@@ -227,7 +227,7 @@ export default function CopywriterAgent({ clients }: Props) {
     setTimeout(() => setCopiedAll(false), 2000)
   }
 
-  const inputCls = 'px-3 py-2 bg-[#0F0F0F] border border-[#1E1E1E] rounded-lg text-[13px] text-white placeholder-[#4A4A4A] focus:outline-none focus:border-[#3A3A3A]'
+  const inputCls = 'px-3 py-2 bg-[var(--surface-raised)] border border-[var(--border)] rounded-lg text-[13px] text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:border-[var(--border)]'
   const { variants, sequence } = output ? parseOutput(output) : { variants: [], sequence: [] }
   const hasContent = variants.length > 0 || sequence.length > 0
   const showSkeleton = loading && !hasContent
@@ -241,16 +241,16 @@ export default function CopywriterAgent({ clients }: Props) {
         </select>
 
         <button onClick={generate} disabled={!clientId || loading}
-          className="flex items-center gap-2 px-4 py-2 bg-white text-[#0A0A0A] text-[13px] font-medium rounded-lg hover:bg-[#E0E0E0] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] text-[var(--accent-fg)] text-[13px] font-medium rounded-lg hover:opacity-90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
           {loading ? <span className="w-3.5 h-3.5 border-2 border-[#0A0A0A]/30 border-t-[#0A0A0A] rounded-full animate-spin" /> : <Wand2 size={14} />}
           {loading ? 'Generating...' : 'Generate'}
         </button>
         {output && !loading && (
           <>
-            <button onClick={generate} className="p-2 text-[#5A5A5A] hover:text-white border border-[#1E1E1E] rounded-lg transition-colors" title="Regenerate">
+            <button onClick={generate} className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border)] rounded-lg transition-colors" title="Regenerate">
               <RotateCcw size={14} />
             </button>
-            <button onClick={copyAll} className="flex items-center gap-1.5 text-[12px] text-[#5A5A5A] hover:text-white transition-colors ml-1">
+            <button onClick={copyAll} className="flex items-center gap-1.5 text-[12px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors ml-1">
               {copiedAll ? <Check size={13} className="text-[#2ECC71]" /> : <Copy size={13} />}
               {copiedAll ? 'Copied all' : 'Copy all'}
             </button>
@@ -263,7 +263,7 @@ export default function CopywriterAgent({ clients }: Props) {
       {(hasContent || showSkeleton) && (
         <div className="space-y-4">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#3A3A3A] mb-3">Cold Outreach — 3 Angles</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-3">Cold Outreach — 3 Angles</p>
             <div className="grid grid-cols-3 gap-5">
               {showSkeleton || variants.length === 0
                 ? VARIANT_LABELS.map((label, i) => <SkeletonCard key={i} label={label} color={VARIANT_COLORS[i]} />)
@@ -274,7 +274,7 @@ export default function CopywriterAgent({ clients }: Props) {
           </div>
           {(sequence.length > 0 || showSkeleton) && (
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#3A3A3A] mb-3">Sequence</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-3">Sequence</p>
               <div className="grid grid-cols-2 gap-5">
                 {showSkeleton || sequence.length === 0
                   ? ['Follow-Up', 'Final Touch'].map((label, i) => <SkeletonCard key={i} label={label} color={SEQ_COLORS[i]} />)

@@ -86,14 +86,14 @@ const DropdownMenu = ({ options, children }: DropdownMenuProps) => {
                   }}
                   key={option.label}
                   onClick={option.onClick}
-                  className="px-2 py-3 cursor-pointer text-white text-sm rounded-lg w-full text-left flex items-center gap-x-2"
+                  className="px-2 py-3 cursor-pointer text-[var(--text-primary)] text-sm rounded-lg w-full text-left flex items-center gap-x-2"
                 >
                   {option.Icon}
                   {option.label}
                 </motion.button>
               ))
             ) : (
-              <div className="px-4 py-2 text-white text-xs">No options</div>
+              <div className="px-4 py-2 text-[var(--text-primary)] text-xs">No options</div>
             )}
           </motion.div>
         )}

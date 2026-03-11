@@ -50,8 +50,8 @@ export default function OnboardingComplete({ onViewCampaign, onViewModules, hasC
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <h2 className="text-xl font-medium text-white mb-2">You're all set.</h2>
-        <p className="text-[#6B6B6B] text-[14px] max-w-sm">
+        <h2 className="text-xl font-medium text-[var(--text-primary)] mb-2">You're all set.</h2>
+        <p className="text-[var(--text-secondary)] text-[14px] max-w-sm">
           We'll have your campaign ready within 48 hours. You'll hear from us shortly.
         </p>
       </motion.div>
@@ -66,7 +66,7 @@ export default function OnboardingComplete({ onViewCampaign, onViewModules, hasC
         {onViewModules && (
           <button
             onClick={onViewModules}
-            className="px-5 py-2.5 bg-[#5E6AD2] text-white text-[13px] font-medium rounded-lg hover:bg-[#5060C2] transition-colors"
+            className="px-5 py-2.5 bg-[#5E6AD2] text-[var(--text-primary)] text-[13px] font-medium rounded-lg hover:bg-[#5060C2] transition-colors"
           >
             Explore Training Modules
           </button>
@@ -74,7 +74,7 @@ export default function OnboardingComplete({ onViewCampaign, onViewModules, hasC
         {hasCampaign && onViewCampaign && (
           <button
             onClick={onViewCampaign}
-            className="px-5 py-2.5 bg-white/5 border border-white/10 text-white text-[13px] font-medium rounded-lg hover:bg-white/8 transition-colors"
+            className="px-5 py-2.5 bg-white/5 border border-white/10 text-[var(--text-primary)] text-[13px] font-medium rounded-lg hover:bg-white/8 transition-colors"
           >
             View Campaign Analytics
           </button>
@@ -86,18 +86,18 @@ export default function OnboardingComplete({ onViewCampaign, onViewModules, hasC
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
-        className="mt-12 border-t border-[#1E1E1E] pt-8 text-left w-full max-w-sm"
+        className="mt-12 border-t border-[var(--border)] pt-8 text-left w-full max-w-sm"
       >
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#4A4A4A] mb-4">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-placeholder)] mb-4">
           What happens next
         </p>
         <ol className="space-y-3">
           {NEXT_STEPS.map((step, i) => (
             <li key={i} className="flex items-start gap-3">
-              <span className="w-5 h-5 rounded-full bg-[#1A1A1A] border border-[#2A2A2A] text-[#6B6B6B] text-[11px] flex items-center justify-center shrink-0 mt-0.5 font-medium">
+              <span className="w-5 h-5 rounded-full bg-[var(--border-subtle)] border border-[var(--border)] text-[var(--text-secondary)] text-[11px] flex items-center justify-center shrink-0 mt-0.5 font-medium">
                 {i + 1}
               </span>
-              <span className="text-[13px] text-[#6B6B6B] leading-relaxed">{step}</span>
+              <span className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{step}</span>
             </li>
           ))}
         </ol>

@@ -22,13 +22,13 @@ return (
       ease: "circInOut",
       type: "spring",
     }}
-    className="bg-[#11111198] px-2 py-1 rounded-xl text-sm flex items-center gap-1 shadow-[0_0_10px_rgba(0,0,0,0.2)] backdrop-blur-sm text-white"
+    className="bg-[#11111198] px-2 py-1 rounded-xl text-sm flex items-center gap-1 shadow-[0_0_10px_rgba(0,0,0,0.2)] backdrop-blur-sm text-[var(--text-primary)]"
   >
     {text}
     <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
       <Button
         onClick={onRemove}
-        className="bg-transparent text-xs h-fit flex items-center rounded-full justify-center text-white p-1 hover:bg-[#11111136]"
+        className="bg-transparent text-xs h-fit flex items-center rounded-full justify-center text-[var(--text-primary)] p-1 hover:bg-[#11111136]"
       >
         <X className="w-4 h-4" />
       </Button>
@@ -80,7 +80,7 @@ return (
         placeholder={placeholder || "Type something and press Enter..."}
         whileHover={{ scale: 1.01, backgroundColor: "#111111d1" }}
         whileTap={{ scale: 0.99, backgroundColor: "#11111198" }}
-        className="w-full px-4 py-2 bg-[#11111198] shadow-[0_0_20px_rgba(0,0,0,0.2)] border-none rounded-xl backdrop-blur-sm text-white disabled:opacity-50 disabled:cursor-not-allowed outline-none ring-0"
+        className="w-full px-4 py-2 bg-[#11111198] shadow-[0_0_20px_rgba(0,0,0,0.2)] border-none rounded-xl backdrop-blur-sm text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed outline-none ring-0"
         disabled={limit ? tags.length >= limit : false}
       />
     </motion.div>

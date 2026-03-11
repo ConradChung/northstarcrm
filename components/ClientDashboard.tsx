@@ -59,7 +59,7 @@ function SidebarLogo() {
           display: animate ? (open ? 'inline-block' : 'none') : 'inline-block',
           opacity: animate ? (open ? 1 : 0) : 1,
         }}
-        className="text-[13px] font-semibold text-white whitespace-nowrap"
+        className="text-[13px] font-semibold text-[var(--text-primary)] whitespace-nowrap"
       >
         Northstar
       </motion.span>
@@ -84,7 +84,7 @@ function NavItem({
       onClick={onClick}
       className={cn(
         'relative flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left transition-colors',
-        active ? 'text-white' : 'text-[#5A5A5A] hover:text-[#A0A0A0]'
+        active ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-secondary)]'
       )}
     >
       {active && (
@@ -121,9 +121,9 @@ function SidebarUserFooter({
   const initial = ((companyName || email || 'U')[0] || 'U').toUpperCase()
 
   return (
-    <div className="border-t border-[#1E1E1E] pt-4 space-y-1">
+    <div className="border-t border-[var(--border)] pt-4 space-y-1">
       <div className="flex items-center gap-3 px-3 py-2">
-        <div className="w-7 h-7 rounded-full bg-[#2A2A2A] flex items-center justify-center shrink-0 text-[11px] text-white font-medium">
+        <div className="w-7 h-7 rounded-full bg-[#2A2A2A] flex items-center justify-center shrink-0 text-[11px] text-[var(--text-primary)] font-medium">
           {initial}
         </div>
         <motion.span
@@ -131,14 +131,14 @@ function SidebarUserFooter({
             display: animate ? (open ? 'inline-block' : 'none') : 'inline-block',
             opacity: animate ? (open ? 1 : 0) : 1,
           }}
-          className="text-[12px] text-[#5A5A5A] truncate whitespace-nowrap max-w-[160px]"
+          className="text-[12px] text-[var(--text-secondary)] truncate whitespace-nowrap max-w-[160px]"
         >
           {companyName || email}
         </motion.span>
       </div>
       <button
         onClick={onLogout}
-        className="relative flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left text-[#5A5A5A] hover:text-[#A0A0A0] transition-colors"
+        className="relative flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-left text-[var(--text-secondary)] hover:text-[var(--text-secondary)] transition-colors"
       >
         <LogOut size={18} className="shrink-0" />
         <motion.span
@@ -198,9 +198,9 @@ export default function ClientDashboard({
   ]
 
   return (
-    <div className="flex h-screen bg-[#0A0A0A] overflow-hidden p-3 gap-3">
+    <div className="flex h-screen bg-[var(--bg)] overflow-hidden p-3 gap-3">
       <Sidebar animate={false}>
-        <SidebarBody className="!bg-[#111111] !border !border-[#1E1E1E] !w-[220px] !rounded-2xl !h-full justify-between gap-8">
+        <SidebarBody className="!bg-[var(--surface)] !border !border-[var(--border)] !w-[220px] !rounded-2xl !h-full justify-between gap-8">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden gap-0.5">
             <SidebarLogo />
             <div className="mt-2 flex flex-col gap-0.5">
@@ -224,7 +224,7 @@ export default function ClientDashboard({
       </Sidebar>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto bg-[#0A0A0A] rounded-2xl">
+      <main className="flex-1 overflow-y-auto bg-[var(--bg)] rounded-2xl">
         <AnimatePresence mode="wait">
           {activeTab === 'onboarding' && (
             <motion.div
@@ -244,7 +244,7 @@ export default function ClientDashboard({
               {acknowledged && currentStage >= 1 && currentStage <= 3 && (
                 <>
                   <StageProgress currentStage={currentStage} />
-                  <div className="border border-[#1E1E1E] rounded-xl p-6">
+                  <div className="border border-[var(--border)] rounded-xl p-6">
                     {currentStage === 1 && (
                       <Stage1
                         companyName={profile.company_name}
@@ -264,7 +264,7 @@ export default function ClientDashboard({
               {acknowledged && currentStage >= 4 && (
                 <>
                   <StageProgress currentStage={4} />
-                  <div className="border border-[#1E1E1E] rounded-xl p-6">
+                  <div className="border border-[var(--border)] rounded-xl p-6">
                     <OnboardingComplete
                       hasCampaign={hasAnalytics}
                       onViewCampaign={

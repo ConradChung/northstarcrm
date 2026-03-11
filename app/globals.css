@@ -116,13 +116,29 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Theme CSS variables — defaults match Midnight theme, overridden by ThemeContext at runtime */
+:root {
+  --bg: #0A0A0A;
+  --surface: #111111;
+  --surface-raised: #0F0F0F;
+  --border: #1E1E1E;
+  --border-subtle: #1A1A1A;
+  --text-primary: #FFFFFF;
+  --text-secondary: #5A5A5A;
+  --text-tertiary: #3A3A3A;
+  --text-placeholder: #4A4A4A;
+  --accent: #3B82F6;
+  --accent-fg: #FFFFFF;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   html,
   body {
-    @apply bg-[#0A0A0A] text-foreground;
+    background-color: var(--bg);
+    color: var(--text-primary);
     overflow: hidden;
     height: 100%;
   }
