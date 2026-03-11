@@ -36,6 +36,7 @@ export default function LoginPage() {
       }
     } catch (err: unknown) {
       setError((err as Error).message || 'Failed to login')
+    } finally {
       setLoading(false)
     }
   }
@@ -66,10 +67,11 @@ export default function LoginPage() {
         <div className="rounded-2xl p-6 shadow-2xl" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
           <form onSubmit={handleLogin} className="space-y-3">
             <div>
-              <label className="block text-[12px] font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+              <label htmlFor="email" className="block text-[12px] font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
                 Email
               </label>
               <input
+                id="email"
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
@@ -86,10 +88,11 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-[12px] font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+              <label htmlFor="password" className="block text-[12px] font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
                 Password
               </label>
               <input
+                id="password"
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
