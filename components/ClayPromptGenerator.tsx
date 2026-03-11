@@ -307,7 +307,7 @@ export default function ClayPromptGenerator({ clients }: Props) {
                 <button
                   key={tab.id}
                   onClick={() => setTemplateVariant(tab.id)}
-                  className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors whitespace-nowrap ${templateVariant === tab.id ? 'bg-[#1E1E1E] text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
+                  className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors whitespace-nowrap ${templateVariant === tab.id ? 'bg-[var(--accent)] text-[var(--accent-fg)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
                   {tab.label}
                 </button>
               ))}
