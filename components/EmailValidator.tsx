@@ -97,6 +97,7 @@ export default function EmailValidator({ onStatusChange }: Props) {
   const [error, setError] = useState<string>('')
   const [progress, setProgress] = useState<Progress>({ processed: 0, total: 0 })
   const fileRef = useRef<File | null>(null)
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [fileName, setFileName] = useState<string>('')
   const [validCount, setValidCount] = useState(0)
   const [totalCount, setTotalCount] = useState(0)
@@ -116,6 +117,11 @@ export default function EmailValidator({ onStatusChange }: Props) {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, progress.processed, progress.total])
+
+  // Clear polling interval on unmount
+  useEffect(() => {
+    return () => { if (pollingRef.current) clearInterval(pollingRef.current) }
+  }, [])
 
   const loadRuns = useCallback(async () => {
     const { data } = await supabase
@@ -149,8 +155,6 @@ export default function EmailValidator({ onStatusChange }: Props) {
     setError('')
     setValidCount(0)
     setTotalCount(0)
-    let runningValid = 0
-    let runningTotal = 0
 
     const formData = new FormData()
     formData.append('file', file)
@@ -158,52 +162,53 @@ export default function EmailValidator({ onStatusChange }: Props) {
 
     try {
       const res = await fetch('/api/validate-emails', { method: 'POST', body: formData })
-      const contentType = res.headers.get('content-type') ?? ''
+      const json = await res.json()
 
-      if (contentType.includes('application/json')) {
-        const json = await res.json()
-        if (json.status === 'ambiguous') {
-          setAmbiguousColumns(json.columns)
-          setStep('ambiguous')
-        } else {
-          setError(json.error ?? 'An unexpected error occurred')
-          setStep('error')
-        }
+      if (json.status === 'ambiguous') {
+        setAmbiguousColumns(json.columns)
+        setStep('ambiguous')
+        return
+      }
+      if (json.error) {
+        setError(json.error)
+        setStep('error')
         return
       }
 
-      const reader = res.body!.getReader()
-      const decoder = new TextDecoder()
-      let buffer = ''
+      const { runId, total } = json
+      setProgress({ processed: 0, total })
 
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        buffer += decoder.decode(value, { stream: true })
+      // Poll Supabase-backed status endpoint every 3 s
+      // n8n writes progress to DB after each email — no SSE needed
+      pollingRef.current = setInterval(async () => {
+        try {
+          const pollRes = await fetch(`/api/validate-emails/status/${runId}`)
+          const poll = await pollRes.json()
 
-        const parts = buffer.split('\n\n')
-        buffer = parts.pop() ?? ''
+          setProgress({ processed: poll.processed ?? 0, total: poll.total })
+          setValidCount(poll.valid_count ?? 0)
+          setTotalCount(poll.total)
 
-        for (const part of parts) {
-          const line = part.trim()
-          if (!line.startsWith('data: ')) continue
-          const payload = JSON.parse(line.slice(6))
-
-          if (payload.type === 'start') {
-            runningTotal = payload.total
-            setProgress({ processed: 0, total: payload.total })
-          } else if (payload.type === 'progress') {
-            setProgress({ processed: payload.processed, total: payload.total })
-            if (payload.status === 'valid') runningValid++
-          } else if (payload.type === 'complete') {
-            setValidCount(runningValid)
-            setTotalCount(runningTotal)
-            setValidCsv(payload.csv)
+          if (poll.status === 'complete') {
+            clearInterval(pollingRef.current!)
+            pollingRef.current = null
+            // Fetch validated CSV text so download/copy-for-clay still works
+            if (poll.signedUrl) {
+              const csvRes = await fetch(poll.signedUrl)
+              setValidCsv(await csvRes.text())
+            }
             setStep('done')
             loadRuns()
+          } else if (poll.status === 'error') {
+            clearInterval(pollingRef.current!)
+            pollingRef.current = null
+            setError('Validation failed in n8n. Check n8n logs.')
+            setStep('error')
           }
+        } catch {
+          // transient poll error — keep retrying
         }
-      }
+      }, 3000)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Network error')
       setStep('error')
@@ -276,6 +281,7 @@ export default function EmailValidator({ onStatusChange }: Props) {
   }
 
   function reset() {
+    if (pollingRef.current) { clearInterval(pollingRef.current); pollingRef.current = null }
     setStep('upload')
     setAmbiguousColumns([])
     setError('')
@@ -354,7 +360,7 @@ export default function EmailValidator({ onStatusChange }: Props) {
               <div className="h-full bg-white rounded-full transition-all duration-300" style={{ width: `${pct}%` }} />
             </div>
             <p className="text-[11px] text-[var(--text-placeholder)]">
-              {progress.total > 0 ? `${pct}% complete — processing sequentially to avoid rate limits` : 'Starting…'}
+              {progress.total > 0 ? `${pct}% complete — running on n8n, safe to close this tab` : 'Queued — waiting for n8n to start…'}
             </p>
           </div>
         )}
