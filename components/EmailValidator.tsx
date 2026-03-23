@@ -197,6 +197,11 @@ export default function EmailValidator({ onStatusChange }: Props) {
 
     try {
       const res = await fetch('/api/validate/start', { method: 'POST', body: formData })
+      if (!res.ok && !res.headers.get('content-type')?.includes('application/json')) {
+        setError(`Upload failed (${res.status} ${res.statusText || 'error'})`)
+        setStep('error')
+        return
+      }
       const json = await res.json()
 
       if (json.status === 'ambiguous') {

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { createServerClient } from '@supabase/ssr'
+
+// Edge Runtime: no 4.5MB body size limit — streams large CSV uploads without rejection
+export const runtime = 'edge'
 
 const TIER1_NAMES = new Set(['email', 'work_email', 'business_email'])
 const PERSONAL_SUBSTRINGS = ['personal']
