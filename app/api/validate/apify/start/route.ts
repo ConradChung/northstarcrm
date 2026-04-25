@@ -2,13 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
-const APIFY_API_TOKEN = process.env.APIFY_API_TOKEN!
-const APIFY_ACTOR_ID = process.env.APIFY_ACTOR_ID!
-
-const CARGO_EXCLUSIONS = new Set([
-  'Hazardous Materials', 'Livestock', 'Mobile Homes',
-  'Motor Vehicles', 'Passengers', 'US Mail',
-])
 
 function assignCargoCategory(cargo: string[]): string {
   const s = new Set(cargo)
@@ -113,6 +106,11 @@ function applyFilters(items: ApifyItem[]): {
 }
 
 export async function POST(_request: NextRequest) {
+  const APIFY_API_TOKEN = process.env.APIFY_API_TOKEN
+  const APIFY_ACTOR_ID = process.env.APIFY_ACTOR_ID
+  if (!APIFY_API_TOKEN || !APIFY_ACTOR_ID) {
+    return NextResponse.json({ error: 'Missing APIFY_API_TOKEN or APIFY_ACTOR_ID env var' }, { status: 500 })
+  }
   try {
     const runRes = await fetch(
       `https://api.apify.com/v2/acts/${APIFY_ACTOR_ID}/runs/last?token=${APIFY_API_TOKEN}&status=SUCCEEDED`,
@@ -183,7 +181,7 @@ export async function POST(_request: NextRequest) {
     }
 
     fetch(
-      'https://rcfrumrbauwvyzfebxck.supabase.co/functions/v1/email-validator',
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/email-validator`,
       {
         method: 'POST',
         headers: {
