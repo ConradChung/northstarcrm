@@ -16,6 +16,7 @@ interface ValidationRun {
   error_message: string | null
   storage_path: string | null
   created_at: string
+  source: 'csv' | 'apify'
 }
 
 type Step = 'upload' | 'ambiguous' | 'processing' | 'done' | 'error'
@@ -488,7 +489,14 @@ export default function EmailValidator({ onStatusChange }: Props) {
                 <div key={run.id} className="flex items-center justify-between gap-4 border border-[var(--border)] rounded-xl bg-[var(--surface-raised)] px-4 py-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="text-[13px] text-[var(--text-primary)] truncate">{run.filename}</p>
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <p className="text-[13px] text-[var(--text-primary)] truncate">{run.filename}</p>
+                        {run.source === 'apify' && (
+                          <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                            Apify
+                          </span>
+                        )}
+                      </div>
                       {run.status === 'processing' && (
                         <span className="flex items-center gap-1 shrink-0">
                           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
