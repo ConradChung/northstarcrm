@@ -16,7 +16,7 @@ interface ValidationRun {
   error_message: string | null
   storage_path: string | null
   created_at: string
-  source: 'csv' | 'apify'
+  source: 'csv' | 'apify' | null
 }
 
 type Step = 'upload' | 'ambiguous' | 'processing' | 'done' | 'error'
@@ -272,7 +272,7 @@ export default function EmailValidator({ onStatusChange }: Props) {
   }
 
   function csvToTsv(csv: string): string {
-    return csv.split('\r\n').map(row => {
+    return csv.split(/\r?\n/).map(row => {
       // Simple CSV→TSV: replace comma delimiters with tabs (handles quoted fields)
       const fields: string[] = []
       let cur = '', inQ = false
