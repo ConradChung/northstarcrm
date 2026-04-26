@@ -180,17 +180,21 @@ export async function POST(_request: NextRequest) {
       return NextResponse.json({ error: `Failed to insert rows: ${rowsError.message}` }, { status: 500 })
     }
 
-    fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/email-validator`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+    try {
+      await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/email-validator`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          },
+          body: JSON.stringify({ job_id }),
         },
-        body: JSON.stringify({ job_id }),
-      },
-    ).catch(err => console.error('[validate/apify/start] Edge Function invoke error:', err))
+      )
+    } catch (err) {
+      console.error('[validate/apify/start] Edge Function invoke error:', err)
+    }
 
     return NextResponse.json({ job_id, stats, category_stats: categoryStats })
   } catch (error: unknown) {

@@ -149,18 +149,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Failed to insert rows: ${rowsError.message}` }, { status: 500 })
     }
 
-    // Fire-and-forget: invoke Edge Function
-    fetch(
-      'https://rcfrumrbauwvyzfebxck.supabase.co/functions/v1/email-validator',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-        },
-        body: JSON.stringify({ job_id }),
-      }
-    ).catch(err => console.error('[validate/start] Edge Function invoke error:', err))
+    try {
+      await fetch(
+        'https://rcfrumrbauwvyzfebxck.supabase.co/functions/v1/email-validator',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          },
+          body: JSON.stringify({ job_id }),
+        }
+      )
+    } catch (err) {
+      console.error('[validate/start] Edge Function invoke error:', err)
+    }
 
     return NextResponse.json({ job_id, total: rows.length })
   } catch (error: unknown) {

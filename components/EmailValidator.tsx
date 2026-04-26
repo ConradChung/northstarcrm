@@ -140,6 +140,14 @@ export default function EmailValidator({ onStatusChange }: Props) {
 
   useEffect(() => { loadRuns() }, [loadRuns])
 
+  // Refresh the runs list every 5s while any job is active
+  useEffect(() => {
+    const hasActive = runs.some(r => r.status === 'pending' || r.status === 'processing')
+    if (!hasActive) return
+    const id = setInterval(loadRuns, 5000)
+    return () => clearInterval(id)
+  }, [runs, loadRuns])
+
   async function handleDownload(run: ValidationRun) {
     setDownloadingId(run.id)
 
