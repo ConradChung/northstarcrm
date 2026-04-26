@@ -192,7 +192,7 @@ async function processJob(jobId: string): Promise<void> {
       // Approaching wall clock limit — hand off to a fresh invocation and exit.
       // The next invocation resumes from remaining pending rows automatically.
       if (Date.now() - startTime > CHUNK_LIMIT_MS) {
-        await fetch(
+        fetch(
           `${SUPABASE_URL}/functions/v1/email-validator`,
           {
             method: 'POST',
@@ -203,7 +203,9 @@ async function processJob(jobId: string): Promise<void> {
             },
             body: JSON.stringify({ job_id: jobId }),
           },
-        )
+        ).catch(err => console.error('[email-validator] Self re-invoke error:', err))
+        // Wait long enough for the runtime to send the request before this invocation exits
+        await new Promise(r => setTimeout(r, 3000))
         return
       }
     }
