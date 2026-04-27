@@ -82,9 +82,11 @@ async function processJob(jobId: string): Promise<void> {
       const fullName = String(
         data.person_name ?? data.contact_name ?? data.name ?? '',
       )
-      const domain = String(
-        data.domain ?? data.company_domain ?? data.website ?? '',
-      )
+      const rawDomain = String(data.domain ?? data.company_domain ?? data.website ?? '')
+      let domain = rawDomain
+      if (rawDomain.startsWith('http')) {
+        try { domain = new URL(rawDomain).hostname } catch { domain = rawDomain }
+      }
 
       const { firstName, lastName } = parseName(fullName)
 
@@ -141,7 +143,7 @@ async function processJob(jobId: string): Promise<void> {
   }
 
   // Fire email-validator to validate the found emails
-  await fetch(`${SUPABASE_URL}/functions/v1/email-validator`, {
+  fetch(`${SUPABASE_URL}/functions/v1/email-validator`, {
     method: 'POST',
     headers: {
       'apikey': SUPABASE_SERVICE_ROLE_KEY,
@@ -149,7 +151,7 @@ async function processJob(jobId: string): Promise<void> {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ job_id: jobId }),
-  })
+  }).catch(err => console.error('[hnwi-email-finder] email-validator invoke error:', err))
 }
 
 Deno.serve(async (req: Request) => {
