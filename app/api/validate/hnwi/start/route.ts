@@ -246,7 +246,7 @@ export async function POST(request: NextRequest) {
     minUrgency: String(body.minUrgency ?? 'high'),
     officersOnly: true,
     excludeMegaCap: true,
-    maxResults: 200,
+    maxResults: Number(body.maxResultsHnwi ?? 200),
   }
 
   const wealthInput = {
@@ -256,7 +256,7 @@ export async function POST(request: NextRequest) {
     maxEmployees: Number(body.maxEmployees ?? 50),
     stateFilter: String(body.stateFilter ?? ''),
     firmCategory: 'all',
-    maxResults: 500,
+    maxResults: Number(body.maxResultsWealth ?? 500),
   }
 
   try {
