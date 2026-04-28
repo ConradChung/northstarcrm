@@ -56,19 +56,9 @@ export async function POST(request: NextRequest) {
   const startDate = String(body.startDate ?? dateString(7))
   const endDate = String(body.endDate ?? dateString(0))
 
-  const hnwiInput = {
-    scrapeForm4: true,
-    scrapeForm144: true,
-    scrape8K: true,
-    startDate,
-    endDate,
-    minTransactionValue: Number(body.minTransactionValue ?? 1_000_000),
-    minSellRatio: 0.20,
-    minUrgency: String(body.minUrgency ?? 'high'),
-    officersOnly: true,
-    excludeMegaCap: true,
-    maxResults: Number(body.maxResultsHnwi ?? 200),
-  }
+  // HNWI actor uses its own internal defaults for urgency/limits/filters.
+  // Only the date range is reliably respected.
+  const hnwiInput = { startDate, endDate }
 
   // RIA input is passed to the orchestrator — it starts the RIA actor only after HNWI completes
   const riaInput = {
@@ -82,10 +72,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // 1. Start only the HNWI actor — RIA starts sequentially after HNWI completes
-    const hnwiRunId = await startActorRun(HNWI_ACTOR_ID, hnwiInput, APIFY_API_TOKEN)
-
-    // 2. Create 4 validation jobs (2 per scraper: direct emails + email finder)
+    // 1. Create DB jobs first — if this fails we haven't wasted an Apify run
     const today = dateString(0)
     const hnwiJobA = crypto.randomUUID()  // HNWI direct emails
     const hnwiJobB = crypto.randomUUID()  // HNWI email finder
@@ -102,6 +89,9 @@ export async function POST(request: NextRequest) {
     if (jobsError) {
       return NextResponse.json({ error: `Failed to create jobs: ${jobsError.message}` }, { status: 500 })
     }
+
+    // 2. Start HNWI actor only after DB is ready — RIA starts sequentially after HNWI completes
+    const hnwiRunId = await startActorRun(HNWI_ACTOR_ID, hnwiInput, APIFY_API_TOKEN)
 
     // 3. Fire orchestrator (fire-and-forget) — handles sequential scraping + all validation
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
